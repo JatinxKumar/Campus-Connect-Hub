@@ -70,7 +70,7 @@ const AdminDashboard = () => {
     setEditingEventId(null);
   };
 
-  const handleCreateClub = (e: FormEvent) => {
+  const handleCreateClub = async (e: FormEvent) => {
     e.preventDefault();
 
     if (!clubForm.name.trim() || !clubForm.description.trim() || !clubForm.category || !clubForm.coordinator.trim()) {
@@ -101,33 +101,49 @@ const AdminDashboard = () => {
         return;
       }
 
-      updateClub({
-        ...existingClub,
-        ...sanitizedClub,
-      });
+      try {
+        await updateClub({
+          ...existingClub,
+          ...sanitizedClub,
+        });
 
-      toast({
-        title: "Club Updated!",
-        description: `${sanitizedClub.name} has been successfully updated.`,
-      });
-      resetClubForm();
+        toast({
+          title: "Club Updated!",
+          description: `${sanitizedClub.name} has been successfully updated.`,
+        });
+        resetClubForm();
+      } catch (error) {
+        toast({
+          title: "Update failed",
+          description: error instanceof Error ? error.message : "Unable to update club.",
+          variant: "destructive",
+        });
+      }
       return;
     }
 
-    addClub({
-      id: 0,
-      name: sanitizedClub.name,
-      description: sanitizedClub.description,
-      category: sanitizedClub.category,
-      members: 0,
-      coordinator: sanitizedClub.coordinator,
-      image: sanitizedClub.image,
-    });
-    toast({
-      title: "Club Created!",
-      description: `${sanitizedClub.name} has been successfully created.`,
-    });
-    resetClubForm();
+    try {
+      await addClub({
+        id: 0,
+        name: sanitizedClub.name,
+        description: sanitizedClub.description,
+        category: sanitizedClub.category,
+        members: 0,
+        coordinator: sanitizedClub.coordinator,
+        image: sanitizedClub.image,
+      });
+      toast({
+        title: "Club Created!",
+        description: `${sanitizedClub.name} has been successfully created.`,
+      });
+      resetClubForm();
+    } catch (error) {
+      toast({
+        title: "Create failed",
+        description: error instanceof Error ? error.message : "Unable to create club.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleEditClub = (club: Club) => {
@@ -141,22 +157,30 @@ const AdminDashboard = () => {
     });
   };
 
-  const handleDeleteClub = (club: Club) => {
+  const handleDeleteClub = async (club: Club) => {
     const isConfirmed = window.confirm(`Are you sure you want to delete ${club.name}?`);
     if (!isConfirmed) {
       return;
     }
 
-    deleteClub(club.id);
+    try {
+      await deleteClub(club.id);
 
-    if (editingClubId === club.id) {
-      resetClubForm();
+      if (editingClubId === club.id) {
+        resetClubForm();
+      }
+
+      toast({
+        title: "Club Deleted",
+        description: `${club.name} has been removed.`,
+      });
+    } catch (error) {
+      toast({
+        title: "Delete failed",
+        description: error instanceof Error ? error.message : "Unable to delete club.",
+        variant: "destructive",
+      });
     }
-
-    toast({
-      title: "Club Deleted",
-      description: `${club.name} has been removed.`,
-    });
   };
 
   const handleCreateEvent = (e: FormEvent) => {

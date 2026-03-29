@@ -49,16 +49,24 @@ const EventRegistration = () => {
     }
   }, [event, navigate, toast]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!event) return;
 
-    registerForEvent(event.id);
-    toast({
-      title: "Registration Successful!",
-      description: `You're registered for ${event.title}. Check your email for details.`,
-    });
-    navigate("/events");
+    try {
+      await registerForEvent(event.id);
+      toast({
+        title: "Registration Successful!",
+        description: `You're registered for ${event.title}. Check your email for details.`,
+      });
+      navigate("/events");
+    } catch (error) {
+      toast({
+        title: "Registration failed",
+        description: error instanceof Error ? error.message : "Unable to register for this event.",
+        variant: "destructive",
+      });
+    }
   };
 
   if (!event) return null;

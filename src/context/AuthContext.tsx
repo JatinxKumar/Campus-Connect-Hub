@@ -1,4 +1,5 @@
 import { createContext, ReactNode, useContext, useEffect, useState } from "react";
+import { apiUrl, parseApiError } from "@/lib/api";
 
 interface AuthUser {
   name: string;
@@ -9,8 +10,8 @@ interface AuthUser {
 interface AuthContextType {
   isAuthenticated: boolean;
   user: AuthUser | null;
-  loginWithGoogle: (credential: string) => boolean;
-  loginWithCredentials: (email: string, password: string) => boolean;
+  loginWithGoogle: (credential: string) => Promise<boolean>;
+  loginWithCredentials: (email: string, password: string) => Promise<boolean>;
   logout: () => void;
 }
 
@@ -18,9 +19,6 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const AUTH_STORAGE_KEY = "campus-connect-auth";
 const AUTH_USER_STORAGE_KEY = "campus-connect-auth-user";
-const DEMO_EMAIL = "admin@campusconnect.demo";
-const DEMO_PASSWORD = "admin123";
-
 const parseJwtPayload = (token: string) => {
   try {
     const base64Url = token.split(".")[1];
@@ -79,7 +77,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [user]);
 
-  const loginWithGoogle = (credential: string) => {
+  const loginWithGoogle = async (credential: string) => {
     if (!credential) {
       return false;
     }
@@ -87,6 +85,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const payload = parseJwtPayload(credential);
     if (!payload?.email || !payload?.name) {
       return false;
+    }
+
+    const response = await fetch(apiUrl("/auth/login"), {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email: payload.email,
+        name: payload.name,
+        picture: payload.picture,
+        provider: "google",
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(await parseApiError(response));
     }
 
     setUser({
@@ -98,17 +113,28 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return true;
   };
 
-  const loginWithCredentials = (email: string, password: string) => {
-    const normalizedEmail = email.trim().toLowerCase();
-    const normalizedPassword = password.trim();
+  const loginWithCredentials = async (email: string, password: string) => {
+    const response = await fetch(apiUrl("/auth/login"), {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email: email.trim().toLowerCase(),
+        password: password.trim(),
+        provider: "credentials",
+      }),
+    });
 
-    if (normalizedEmail !== DEMO_EMAIL || normalizedPassword !== DEMO_PASSWORD) {
+    if (!response.ok) {
       return false;
     }
 
-    setUser({
+    const payload = (await response.json()) as { user?: AuthUser };
+
+    setUser(payload.user || {
       name: "Demo Admin",
-      email: DEMO_EMAIL,
+      email: email.trim().toLowerCase(),
     });
     setIsAuthenticated(true);
     return true;

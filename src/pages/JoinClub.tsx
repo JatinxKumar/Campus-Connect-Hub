@@ -36,16 +36,24 @@ const JoinClub = () => {
     }
   }, [club, navigate, toast]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!club) return;
 
-    joinClub(club.id);
-    toast({
-      title: "Successfully Joined!",
-      description: `Welcome to ${club.name}! The coordinator will contact you soon.`,
-    });
-    navigate("/clubs");
+    try {
+      await joinClub(club.id);
+      toast({
+        title: "Successfully Joined!",
+        description: `Welcome to ${club.name}! The coordinator will contact you soon.`,
+      });
+      navigate("/clubs");
+    } catch (error) {
+      toast({
+        title: "Join failed",
+        description: error instanceof Error ? error.message : "Unable to join this club.",
+        variant: "destructive",
+      });
+    }
   };
 
   if (!club) return null;

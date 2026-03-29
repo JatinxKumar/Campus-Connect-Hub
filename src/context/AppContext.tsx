@@ -1,23 +1,22 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { clubs as initialClubs, Club } from '@/data/clubsData';
 import { events as initialEvents, Event } from '@/data/eventsData';
+import { apiUrl, parseApiError } from '@/lib/api';
 
 interface AppContextType {
   clubs: Club[];
   events: Event[];
-  addClub: (club: Club) => void;
-  updateClub: (club: Club) => void;
-  deleteClub: (clubId: number) => void;
+  addClub: (club: Club) => Promise<void>;
+  updateClub: (club: Club) => Promise<void>;
+  deleteClub: (clubId: number) => Promise<void>;
   addEvent: (event: Event) => void;
   updateEvent: (event: Event) => void;
   deleteEvent: (eventId: number) => void;
-  registerForEvent: (eventId: number) => void;
-  joinClub: (clubId: number) => void;
+  registerForEvent: (eventId: number) => Promise<void>;
+  joinClub: (clubId: number) => Promise<void>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
-
-const CLUBS_STORAGE_KEY = 'campus-connect-clubs';
 
 const getNextId = (items: { id: number }[]) => {
   if (items.length === 0) {
@@ -26,47 +25,85 @@ const getNextId = (items: { id: number }[]) => {
   return Math.max(...items.map(item => item.id)) + 1;
 };
 
-const getInitialClubs = (): Club[] => {
-  if (typeof window === 'undefined') {
-    return initialClubs;
-  }
-
-  try {
-    const savedClubs = window.localStorage.getItem(CLUBS_STORAGE_KEY);
-    if (!savedClubs) {
-      return initialClubs;
-    }
-
-    const parsedClubs = JSON.parse(savedClubs) as Club[];
-    return Array.isArray(parsedClubs) ? parsedClubs : initialClubs;
-  } catch {
-    return initialClubs;
-  }
-};
-
 export const AppProvider = ({ children }: { children: ReactNode }) => {
-  const [clubs, setClubs] = useState<Club[]>(getInitialClubs);
+  const [clubs, setClubs] = useState<Club[]>(initialClubs);
   const [events, setEvents] = useState<Event[]>(initialEvents);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      window.localStorage.setItem(CLUBS_STORAGE_KEY, JSON.stringify(clubs));
+    const fetchClubs = async () => {
+      try {
+        const response = await fetch(apiUrl('/api/clubs'));
+        if (!response.ok) {
+          return;
+        }
+
+        const payload = (await response.json()) as { clubs?: Club[] };
+        if (Array.isArray(payload.clubs)) {
+          setClubs(payload.clubs);
+        }
+      } catch {
+        // Keep fallback data if backend is unavailable.
+      }
+    };
+
+    void fetchClubs();
+  }, []);
+
+  const addClub = async (club: Club) => {
+    const response = await fetch(apiUrl('/api/clubs'), {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(club),
+    });
+
+    if (!response.ok) {
+      throw new Error(await parseApiError(response));
     }
-  }, [clubs]);
 
-  const addClub = (club: Club) => {
-    setClubs(prev => [...prev, { ...club, id: getNextId(prev) }]);
+    const payload = (await response.json()) as { club?: Club };
+    if (!payload.club) {
+      throw new Error('Club creation failed');
+    }
+
+    setClubs(prev => [...prev, payload.club!]);
   };
 
-  const updateClub = (updatedClub: Club) => {
-    setClubs(prev => prev.map(club => 
-      club.id === updatedClub.id
-        ? updatedClub
+  const updateClub = async (updatedClub: Club) => {
+    const response = await fetch(apiUrl(`/api/clubs/${updatedClub.id}`), {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(updatedClub),
+    });
+
+    if (!response.ok) {
+      throw new Error(await parseApiError(response));
+    }
+
+    const payload = (await response.json()) as { club?: Club };
+    if (!payload.club) {
+      throw new Error('Club update failed');
+    }
+
+    setClubs(prev => prev.map(club => (
+      club.id === payload.club!.id
+        ? payload.club!
         : club
-    ));
+    )));
   };
 
-  const deleteClub = (clubId: number) => {
+  const deleteClub = async (clubId: number) => {
+    const response = await fetch(apiUrl(`/api/clubs/${clubId}`), {
+      method: 'DELETE',
+    });
+
+    if (!response.ok) {
+      throw new Error(await parseApiError(response));
+    }
+
     setClubs(prev => prev.filter(club => club.id !== clubId));
   };
 
@@ -86,7 +123,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     setEvents(prev => prev.filter(event => event.id !== eventId));
   };
 
-  const registerForEvent = (eventId: number) => {
+  const registerForEvent = async (eventId: number) => {
     setEvents(prev => prev.map(event => 
       event.id === eventId && event.currentParticipants < event.maxParticipants
         ? { ...event, currentParticipants: event.currentParticipants + 1 }
@@ -94,12 +131,25 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     ));
   };
 
-  const joinClub = (clubId: number) => {
-    setClubs(prev => prev.map(club => 
-      club.id === clubId
-        ? { ...club, members: club.members + 1 }
+  const joinClub = async (clubId: number) => {
+    const response = await fetch(apiUrl(`/api/clubs/${clubId}/join`), {
+      method: 'POST',
+    });
+
+    if (!response.ok) {
+      throw new Error(await parseApiError(response));
+    }
+
+    const payload = (await response.json()) as { club?: Club };
+    if (!payload.club) {
+      return;
+    }
+
+    setClubs(prev => prev.map(club => (
+      club.id === payload.club!.id
+        ? payload.club!
         : club
-    ));
+    )));
   };
 
   return (

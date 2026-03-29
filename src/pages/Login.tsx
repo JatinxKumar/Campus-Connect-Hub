@@ -45,25 +45,33 @@ const Login = () => {
   const from = (location.state as { from?: { pathname?: string } } | undefined)?.from?.pathname || "/admin";
   const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined;
 
-  const handleDemoLogin = (event: FormEvent<HTMLFormElement>) => {
+  const handleDemoLogin = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    const isValid = loginWithCredentials(email, password);
+    try {
+      const isValid = await loginWithCredentials(email, password);
 
-    if (!isValid) {
+      if (!isValid) {
+        toast({
+          title: "Invalid demo credentials",
+          description: "Use admin@campusconnect.demo and admin123.",
+          variant: "destructive",
+        });
+        return;
+      }
+
       toast({
-        title: "Invalid demo credentials",
-        description: "Use admin@campusconnect.demo and admin123.",
+        title: "Login successful",
+        description: "Signed in with demo credentials.",
+      });
+      navigate(from, { replace: true });
+    } catch (error) {
+      toast({
+        title: "Login failed",
+        description: error instanceof Error ? error.message : "Unable to reach backend.",
         variant: "destructive",
       });
-      return;
     }
-
-    toast({
-      title: "Login successful",
-      description: "Signed in with demo credentials.",
-    });
-    navigate(from, { replace: true });
   };
 
   useEffect(() => {
@@ -72,11 +80,6 @@ const Login = () => {
     }
 
     if (!googleClientId) {
-      toast({
-        title: "Google Sign-In not configured",
-        description: "Set VITE_GOOGLE_CLIENT_ID in your environment to enable login.",
-        variant: "destructive",
-      });
       return;
     }
 
@@ -88,22 +91,34 @@ const Login = () => {
       window.google.accounts.id.initialize({
         client_id: googleClientId,
         callback: (response) => {
-          const isValid = loginWithGoogle(response.credential || "");
+          const authenticate = async () => {
+            try {
+              const isValid = await loginWithGoogle(response.credential || "");
 
-          if (!isValid) {
-            toast({
-              title: "Login failed",
-              description: "Unable to authenticate with Google.",
-              variant: "destructive",
-            });
-            return;
-          }
+              if (!isValid) {
+                toast({
+                  title: "Login failed",
+                  description: "Unable to authenticate with Google.",
+                  variant: "destructive",
+                });
+                return;
+              }
 
-          toast({
-            title: "Login successful",
-            description: "Signed in with Google.",
-          });
-          navigate(from, { replace: true });
+              toast({
+                title: "Login successful",
+                description: "Signed in with Google.",
+              });
+              navigate(from, { replace: true });
+            } catch (error) {
+              toast({
+                title: "Login failed",
+                description: error instanceof Error ? error.message : "Unable to authenticate with Google.",
+                variant: "destructive",
+              });
+            }
+          };
+
+          void authenticate();
         },
       });
 
