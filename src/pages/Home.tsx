@@ -17,40 +17,41 @@ const Home = () => {
       <Navbar />
       
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-primary via-primary/90 to-accent/40 text-primary-foreground py-24 md:py-40 lg:py-48">
+      <section className="relative overflow-hidden bg-background py-24 md:py-32 lg:py-48">
         <div className="container mx-auto px-4">
           {/* Decorative background elements */}
-          <div className="absolute top-0 left-0 w-96 h-96 bg-primary-foreground/10 rounded-full blur-3xl -translate-y-1/2 -translate-x-1/2 pointer-events-none"></div>
-          <div className="absolute bottom-0 right-0 w-96 h-96 bg-accent/20 rounded-full blur-3xl translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
+          <div className="absolute top-20 left-10 w-[500px] h-[500px] bg-primary/10 rounded-full blur-[100px] -translate-y-1/2 -translate-x-1/2 pointer-events-none"></div>
+          <div className="absolute bottom-0 right-10 w-[600px] h-[600px] bg-accent/10 rounded-full blur-[120px] translate-y-1/2 translate-x-1/4 pointer-events-none"></div>
           
-          <div className="max-w-4xl relative z-10">
+          <div className="max-w-5xl mx-auto text-center relative z-10 flex flex-col items-center">
             <div className="smooth-in">
-              <div className="inline-flex items-center gap-2 bg-primary-foreground/20 backdrop-blur-sm border border-primary-foreground/30 px-4 py-2 rounded-full mb-6">
-                <Sparkles className="w-4 h-4" />
-                <span className="text-sm font-medium">Welcome to your campus community</span>
+              <div className="inline-flex items-center gap-2 bg-secondary/80 backdrop-blur-sm border border-border/50 text-foreground px-5 py-2.5 rounded-full mb-8 shadow-sm">
+                <Sparkles className="w-4 h-4 text-primary" />
+                <span className="text-sm font-semibold tracking-wide uppercase">Welcome to your campus community</span>
               </div>
             </div>
             
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 smooth-in-delay-1 leading-tight">
-              Discover Your Passion Through Clubs
+            <h1 className="text-5xl md:text-7xl lg:text-8xl font-extrabold mb-8 smooth-in-delay-1 leading-[1.1] text-foreground tracking-tight">
+              Discover Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">Passion</span>
+              <br /> Through Clubs
             </h1>
             
-            <p className="text-lg md:text-xl mb-10 text-primary-foreground/95 smooth-in-delay-2 max-w-2xl leading-relaxed">
+            <p className="text-xl md:text-2xl mb-12 text-muted-foreground smooth-in-delay-2 max-w-3xl leading-relaxed">
               Join vibrant communities, attend exciting events, and make lasting connections. 
-              Your college experience starts here at ClubHub.
+              Your unforgettable college experience starts right here.
             </p>
             
-            <div className="flex flex-wrap gap-4 smooth-in-delay-3">
+            <div className="flex flex-wrap justify-center gap-4 smooth-in-delay-3">
               <Link to="/clubs" className="group">
-                <Button size="lg" variant="secondary" className="group text-base font-semibold">
+                <Button size="lg" className="group h-14 px-8 text-lg font-semibold shadow-lg shadow-primary/25">
                   Explore Clubs
                   <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </Link>
               <Link to="/events" className="group">
-                <Button size="lg" variant="outline" className="bg-primary-foreground/10 border-primary-foreground/30 hover:bg-primary-foreground/20 text-primary-foreground text-base font-semibold">
+                <Button size="lg" variant="outline" className="h-14 px-8 text-lg font-semibold border-border hover:bg-secondary">
                   View Events
-                  <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  <Calendar className="ml-2 w-5 h-5 group-hover:-translate-y-1 transition-transform" />
                 </Button>
               </Link>
             </div>

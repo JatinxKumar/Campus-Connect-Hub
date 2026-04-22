@@ -4,7 +4,7 @@ const Footer = () => {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-gradient-to-b from-background to-secondary/20 border-t border-border/40 mt-24">
+    <footer className="bg-secondary/50 border-t border-border/40 mt-24">
       <div className="container mx-auto px-4 py-16 md:py-20">
         {/* Main Footer Content */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 lg:gap-12 mb-12">
@@ -41,7 +41,7 @@ const Footer = () => {
             <h3 className="font-bold text-foreground mb-5 text-lg">Quick Links</h3>
             <ul className="space-y-3">
               <li>
-                <a href="/" className="text-muted-foreground hover:text-primary transition-colors font-medium text-sm">
+                <a href="/home" className="text-muted-foreground hover:text-primary transition-colors font-medium text-sm">
                   Home
                 </a>
               </li>

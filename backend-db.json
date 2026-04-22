@@ -74,16 +74,6 @@
       "members": 201,
       "coordinator": "Coach Mark Thompson",
       "image": "https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=800&h=600&fit=crop"
-    },
-    {
-      "id": 9,
-      "name": "NSS",
-      "description": "hjkj",
-      "category": "Social",
-      "members": 0,
-      "coordinator": "hkjh",
-      "image": "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=400&h=300&fit=crop",
-      "featured": false
     }
   ],
   "users": [
@@ -110,9 +100,97 @@
       "password": "123456789",
       "provider": "credentials",
       "createdAt": "2026-04-06T06:12:05.856Z"
+    },
+    {
+      "id": 4,
+      "name": "abc",
+      "email": "abc@gmail.com",
+      "password": "123456",
+      "provider": "credentials",
+      "createdAt": "2026-04-22T15:37:36.145Z"
     }
   ],
   "loginHistory": [
+    {
+      "id": 12,
+      "user": {
+        "name": "abc",
+        "email": "abc@gmail.com"
+      },
+      "password": "123456",
+      "provider": "credentials",
+      "at": "2026-04-22T15:37:36.161Z"
+    },
+    {
+      "id": 11,
+      "user": {
+        "name": "manu",
+        "email": "manu@chitkara.edu.in"
+      },
+      "password": "123456789",
+      "provider": "credentials",
+      "at": "2026-04-22T15:23:18.284Z"
+    },
+    {
+      "id": 10,
+      "user": {
+        "name": "manu",
+        "email": "manu@gmail.com"
+      },
+      "password": "123456",
+      "provider": "credentials",
+      "at": "2026-04-22T15:20:18.227Z"
+    },
+    {
+      "id": 9,
+      "user": {
+        "name": "manu",
+        "email": "manu@gmail.com"
+      },
+      "password": "123456",
+      "provider": "credentials",
+      "at": "2026-04-22T15:16:11.621Z"
+    },
+    {
+      "id": 8,
+      "user": {
+        "name": "manu",
+        "email": "manu@gmail.com"
+      },
+      "password": "123456",
+      "provider": "credentials",
+      "at": "2026-04-22T14:39:15.968Z"
+    },
+    {
+      "id": 7,
+      "user": {
+        "name": "manu",
+        "email": "manu@gmail.com"
+      },
+      "password": "123456",
+      "provider": "credentials",
+      "at": "2026-04-22T14:37:28.988Z"
+    },
+    {
+      "id": 6,
+      "user": {
+        "name": "manu",
+        "email": "manu@gmail.com"
+      },
+      "password": "123456",
+      "provider": "credentials",
+      "at": "2026-04-22T14:35:12.446Z"
+    },
+    {
+      "id": 5,
+      "user": {
+        "name": "manu",
+        "email": "manu@gmail.com"
+      },
+      "password": "123456",
+      "provider": "credentials",
+      "at": "2026-04-09T16:00:28.168Z"
+    },
     {
       "id": 4,
       "user": {

@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AppProvider } from "./context/AppContext";
 import { AuthProvider } from "./context/AuthContext";
 import Home from "./pages/Home";
+import Welcome from "./pages/Welcome";
 import Clubs from "./pages/Clubs";
 import Events from "./pages/Events";
 import JoinClub from "./pages/JoinClub";
@@ -28,7 +29,8 @@ const App = () => (
           <Sonner />
           <BrowserRouter>
             <Routes>
-              <Route path="/" element={<Home />} />
+              <Route path="/" element={<Welcome />} />
+              <Route path="/home" element={<Home />} />
               <Route path="/clubs" element={<Clubs />} />
               <Route path="/clubs/:id/join" element={<JoinClub />} />
               <Route path="/events" element={<Events />} />
