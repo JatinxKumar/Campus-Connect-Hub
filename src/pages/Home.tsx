@@ -1,120 +1,282 @@
-import { Link } from "react-router-dom";
-import { ArrowRight, Users, Calendar, Trophy, Sparkles } from "lucide-react";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import ClubCard from "@/components/ClubCard";
 import EventCard from "@/components/EventCard";
+import Footer from "@/components/Footer";
+import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 import { useAppContext } from "@/context/AppContext";
+import { useAuth } from "@/context/AuthContext";
+import {
+  ArrowRight,
+  Calendar,
+  Search,
+  Sparkles,
+  Star,
+  Trophy,
+  Users,
+  Zap,
+  Moon,
+  Sun,
+} from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 
-const Home = () => {
-  const { clubs, events } = useAppContext();
-  const featuredClubs = clubs.filter(club => club.featured).slice(0, 3);
+const categories = [
+  "Tech",
+  "Music",
+  "Sports",
+  "Robotics",
+  "Dance",
+  "Photography",
+];
+
+const trendingSearches = [
+  "Hackathon",
+  "AI Club",
+  "Dance Workshop",
+  "Robotics",
+  "Music Fest",
+];
+
+export default function Home() {
+  const { clubs, events, recommendedClubs, userProfile } = useAppContext();
+  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+
+  const featuredClubs = clubs.filter((club) => club.featured).slice(0, 3);
   const upcomingEvents = events.slice(0, 3);
 
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showTrending, setShowTrending] = useState(false);
+  const [darkMode, setDarkMode] = useState(true);
+  const [typedText, setTypedText] = useState("");
+  const [wordIndex, setWordIndex] = useState(0);
+
+  const words = ["Discover", "Connect", "Lead", "Innovate"];
+
+  useEffect(() => {
+    const current = words[wordIndex];
+    let index = 0;
+
+    const interval = setInterval(() => {
+      setTypedText(current.slice(0, index));
+      index++;
+
+      if (index > current.length) {
+        clearInterval(interval);
+        setTimeout(() => {
+          setWordIndex((prev) => (prev + 1) % words.length);
+        }, 1500);
+      }
+    }, 120);
+
+    return () => clearInterval(interval);
+  }, [wordIndex]);
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/clubs?search=${searchQuery}`);
+    }
+  };
+
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-b from-background to-secondary/10">
+    <div className="min-h-screen bg-[#020617] text-white overflow-hidden">
       <Navbar />
-      
+
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-background py-24 md:py-32 lg:py-48">
-        <div className="container mx-auto px-4">
-          {/* Decorative background elements */}
-          <div className="absolute top-20 left-10 w-[500px] h-[500px] bg-primary/10 rounded-full blur-[100px] -translate-y-1/2 -translate-x-1/2 pointer-events-none"></div>
-          <div className="absolute bottom-0 right-10 w-[600px] h-[600px] bg-accent/10 rounded-full blur-[120px] translate-y-1/2 translate-x-1/4 pointer-events-none"></div>
-          
-          <div className="max-w-5xl mx-auto text-center relative z-10 flex flex-col items-center">
-            <div className="smooth-in">
-              <div className="inline-flex items-center gap-2 bg-secondary/80 backdrop-blur-sm border border-border/50 text-foreground px-5 py-2.5 rounded-full mb-8 shadow-sm">
-                <Sparkles className="w-4 h-4 text-primary" />
-                <span className="text-sm font-semibold tracking-wide uppercase">Welcome to your campus community</span>
-              </div>
-            </div>
-            
-            <h1 className="text-5xl md:text-7xl lg:text-8xl font-extrabold mb-8 smooth-in-delay-1 leading-[1.1] text-foreground tracking-tight">
-              Discover Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">Passion</span>
-              <br /> Through Clubs
-            </h1>
-            
-            <p className="text-xl md:text-2xl mb-12 text-muted-foreground smooth-in-delay-2 max-w-3xl leading-relaxed">
-              Join vibrant communities, attend exciting events, and make lasting connections. 
-              Your unforgettable college experience starts right here.
-            </p>
-            
-            <div className="flex flex-wrap justify-center gap-4 smooth-in-delay-3">
-              <Link to="/clubs" className="group">
-                <Button size="lg" className="group h-14 px-8 text-lg font-semibold shadow-lg shadow-primary/25">
-                  Explore Clubs
-                  <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                </Button>
-              </Link>
-              <Link to="/events" className="group">
-                <Button size="lg" variant="outline" className="h-14 px-8 text-lg font-semibold border-border hover:bg-secondary">
-                  View Events
-                  <Calendar className="ml-2 w-5 h-5 group-hover:-translate-y-1 transition-transform" />
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
+      <section className="relative py-28 lg:py-40 overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(56,189,248,0.18),transparent_25%),radial-gradient(circle_at_80%_30%,rgba(129,140,248,0.20),transparent_30%),radial-gradient(circle_at_50%_80%,rgba(244,114,182,0.15),transparent_25%)]" />
 
-      {/* Stats Section */}
-      <section className="py-16 md:py-24 bg-gradient-to-b from-background to-secondary/5">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 lg:gap-10">
-            <div className="group p-8 rounded-2xl card-glass hover:shadow-2xl transition-smooth">
-              <div className="flex flex-col items-center text-center">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-primary/20 to-primary/10 rounded-xl mb-6 group-hover:scale-110 transition-transform">
-                  <Users className="w-8 h-8 text-primary" />
-                </div>
-                <h3 className="text-4xl md:text-5xl font-bold mb-3 text-foreground">{clubs.length}+</h3>
-                <p className="text-muted-foreground text-lg">Active Clubs</p>
-              </div>
-            </div>
-            
-            <div className="group p-8 rounded-2xl card-glass hover:shadow-2xl transition-smooth">
-              <div className="flex flex-col items-center text-center">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-accent/20 to-accent/10 rounded-xl mb-6 group-hover:scale-110 transition-transform">
-                  <Calendar className="w-8 h-8 text-accent" />
-                </div>
-                <h3 className="text-4xl md:text-5xl font-bold mb-3 text-foreground">{events.length}+</h3>
-                <p className="text-muted-foreground text-lg">Upcoming Events</p>
-              </div>
-            </div>
-            
-            <div className="group p-8 rounded-2xl card-glass hover:shadow-2xl transition-smooth">
-              <div className="flex flex-col items-center text-center">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-primary/20 to-primary/10 rounded-xl mb-6 group-hover:scale-110 transition-transform">
-                  <Trophy className="w-8 h-8 text-primary" />
-                </div>
-                <h3 className="text-4xl md:text-5xl font-bold mb-3 text-foreground">1000+</h3>
-                <p className="text-muted-foreground text-lg">Active Members</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+        <div className="container relative z-10 mx-auto px-4 text-center">
+          <Badge className="mb-8 border-sky-400/30 bg-sky-500/10 px-6 py-2 text-sky-300 backdrop-blur-xl">
+            <Sparkles className="mr-2 h-4 w-4" />
+            The Future of Campus Communities
+          </Badge>
 
-      {/* Featured Clubs */}
-      <section className="py-16 md:py-24 bg-background">
-        <div className="container mx-auto px-4">
-          <div className="flex items-end justify-between mb-12">
-            <div>
-              <p className="text-primary text-sm font-semibold mb-2 uppercase tracking-wider">Featured</p>
-              <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-3">Popular Clubs</h2>
-              <p className="text-muted-foreground text-lg">Join our most vibrant communities</p>
+          <h3 className="mx-auto max-w-5xl text-6xl font-black leading-tight md:text-8xl lg:text-9xl">
+            <span className="block text-white">{typedText}</span>
+            <span className="block bg-gradient-to-r from-sky-400 via-indigo-400 to-pink-400 bg-clip-text text-transparent">
+              Connect.
+            </span>
+            <span className="block text-white">Lead.</span>
+          </h3>
+
+          <p className="mx-auto mt-8 max-w-3xl text-xl leading-relaxed text-slate-300 md:text-2xl">
+            Join elite communities, attend unforgettable events, and build
+            experiences that shape your future.
+          </p>
+
+          {/* Search */}
+          <motion.form
+            onSubmit={handleSearch}
+            className="relative mx-auto mt-14 max-w-4xl"
+          >
+            <div className="absolute -inset-1 rounded-3xl bg-gradient-to-r from-sky-500 via-indigo-500 to-pink-500 opacity-30 blur-xl" />
+
+            <div className="relative flex items-center rounded-3xl border border-white/10 bg-slate-950/90 backdrop-blur-2xl p-2">
+              <Search className="ml-5 h-6 w-6 text-slate-400" />
+
+              <Input
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onFocus={() => setShowTrending(true)}
+                onBlur={() => setTimeout(() => setShowTrending(false), 200)}
+                placeholder="Search clubs, events, communities..."
+                className="h-16 border-0 bg-transparent text-lg text-white placeholder:text-slate-500 focus-visible:ring-0"
+              />
+
+              <Button
+                type="submit"
+                className="h-14 rounded-2xl bg-gradient-to-r from-sky-500 to-indigo-500 px-8 text-lg shadow-xl shadow-sky-500/30"
+              >
+                Explore Now
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
             </div>
-            <Link to="/clubs" className="hidden md:block group">
-              <Button variant="outline" className="group">
-                View All
-                <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+
+            {showTrending && (
+              <div className="absolute left-0 right-0 top-full z-50 mt-4 rounded-3xl border border-white/10 bg-slate-950/95 p-6 backdrop-blur-2xl">
+                <p className="mb-4 text-left text-sm text-slate-400">
+                  Trending Searches
+                </p>
+
+                <div className="flex flex-wrap gap-3">
+                  {trendingSearches.map((trend) => (
+                    <button
+                      key={trend}
+                      type="button"
+                      onClick={() => {
+                        setSearchQuery(trend);
+                        navigate(`/clubs?search=${trend}`);
+                      }}
+                      className="rounded-full border border-slate-700 bg-slate-800 px-5 py-2 text-sm transition hover:border-sky-400 hover:text-sky-400"
+                    >
+                      #{trend}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </motion.form>
+
+          {/* Category Chips */}
+          <div className="mt-8 flex flex-wrap justify-center gap-4">
+            {categories.map((category) => (
+              <button
+                key={category}
+                onClick={() => navigate(`/clubs?category=${category}`)}
+                className="rounded-full border border-slate-700 bg-slate-900/80 px-5 py-2 text-sm text-slate-300 backdrop-blur-xl transition-all hover:scale-105 hover:border-sky-400 hover:text-sky-400"
+              >
+                #{category}
+              </button>
+            ))}
+          </div>
+
+          {/* CTA */}
+          <div className="mt-12 flex flex-col justify-center gap-4 sm:flex-row">
+            <Link to="/clubs">
+              <Button className="h-14 rounded-2xl bg-gradient-to-r from-sky-500 to-indigo-500 px-10 text-lg shadow-2xl shadow-sky-500/25">
+                Browse Clubs
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+            </Link>
+
+            <Link to="/events">
+              <Button
+                variant="outline"
+                className="h-14 rounded-2xl border-slate-700 bg-slate-900/60 px-10 text-lg backdrop-blur-xl"
+              >
+                <Calendar className="mr-2 h-5 w-5" />
+                View Events
               </Button>
             </Link>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-            {featuredClubs.map((club, index) => (
-              <div key={club.id} className={`smooth-in-delay-${Math.min(index + 1, 3)}`}>
+        </div>
+      </section>
+
+      {/* Stats */}
+      <section className="py-20">
+        <div className="container mx-auto px-4">
+          <div className="grid gap-8 md:grid-cols-3">
+            {[
+              {
+                icon: Users,
+                value: `${clubs.length}+`,
+                label: "Active Clubs",
+              },
+              {
+                icon: Calendar,
+                value: `${events.length}+`,
+                label: "Live Events",
+              },
+              {
+                icon: Trophy,
+                value: "10K+",
+                label: "Students",
+              },
+            ].map((stat) => (
+              <div
+                key={stat.label}
+                className="rounded-3xl border border-white/10 bg-white/5 p-10 backdrop-blur-2xl"
+              >
+                <stat.icon className="mb-6 h-12 w-12 text-sky-400" />
+                <h3 className="text-5xl font-black">{stat.value}</h3>
+                <p className="mt-2 text-slate-400">{stat.label}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {isAuthenticated && userProfile?.interests.length ? (
+        <section className="py-24">
+          <div className="container mx-auto px-4">
+            <div className="mb-14 flex items-end justify-between">
+              <div>
+                <p className="mb-3 text-emerald-400">FOR YOUR INTERESTS</p>
+                <h2 className="text-5xl font-black">Suggested Communities</h2>
+              </div>
+            </div>
+
+            {recommendedClubs.length ? (
+              <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+                {recommendedClubs.map((club) => (
+                  <div
+                    key={club.id}
+                    className="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-2xl transition-all duration-500 hover:-translate-y-3 hover:border-emerald-400/40 hover:shadow-2xl hover:shadow-emerald-500/10"
+                  >
+                    <ClubCard club={club} />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="rounded-3xl border border-white/10 bg-white/5 p-10 text-slate-300 backdrop-blur-2xl">
+                Your interest tags are saved. Join a few clubs to unlock sharper recommendations here.
+              </div>
+            )}
+          </div>
+        </section>
+      ) : null}
+
+      {/* Featured Clubs */}
+      <section className="py-24">
+        <div className="container mx-auto px-4">
+          <div className="mb-14 flex items-end justify-between">
+            <div>
+              <p className="mb-3 text-sky-400">FEATURED CLUBS</p>
+              <h2 className="text-5xl font-black">Popular Communities</h2>
+            </div>
+          </div>
+
+          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+            {featuredClubs.map((club) => (
+              <div
+                key={club.id}
+                className="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-2xl transition-all duration-500 hover:-translate-y-3 hover:border-sky-400/40 hover:shadow-2xl hover:shadow-sky-500/10"
+              >
                 <ClubCard club={club} />
               </div>
             ))}
@@ -122,25 +284,22 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Upcoming Events */}
-      <section className="py-16 md:py-24 bg-gradient-to-b from-secondary/5 to-background">
+      {/* Events */}
+      <section className="py-24">
         <div className="container mx-auto px-4">
-          <div className="flex items-end justify-between mb-12">
+          <div className="mb-14 flex items-end justify-between">
             <div>
-              <p className="text-accent text-sm font-semibold mb-2 uppercase tracking-wider">Calendar</p>
-              <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-3">Upcoming Events</h2>
-              <p className="text-muted-foreground text-lg">Don't miss out on amazing experiences</p>
+              <p className="mb-3 text-pink-400">UPCOMING EVENTS</p>
+              <h2 className="text-5xl font-black">Don't Miss Out</h2>
             </div>
-            <Link to="/events" className="hidden md:block group">
-              <Button variant="outline" className="group">
-                View All
-                <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </Button>
-            </Link>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-            {upcomingEvents.map((event, index) => (
-              <div key={event.id} className={`smooth-in-delay-${Math.min(index + 1, 3)}`}>
+
+          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+            {upcomingEvents.map((event) => (
+              <div
+                key={event.id}
+                className="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-2xl transition-all duration-500 hover:-translate-y-3 hover:border-pink-400/40 hover:shadow-2xl hover:shadow-pink-500/10"
+              >
                 <EventCard event={event} />
               </div>
             ))}
@@ -151,6 +310,377 @@ const Home = () => {
       <Footer />
     </div>
   );
-};
+}
 
-export default Home;
+// import { motion } from "framer-motion";
+// import { ArrowRight, Rocket, Sparkles, Trophy, Users } from "lucide-react";
+
+// const Home = () => {
+//   const features = [
+//     {
+//       icon: <Rocket size={42} />,
+//       title: "Hackathons",
+//       desc: "Build futuristic solutions with brilliant minds and win exciting prizes.",
+//     },
+//     {
+//       icon: <Trophy size={42} />,
+//       title: "Pro Shows",
+//       desc: "Experience electrifying performances and unforgettable nights.",
+//     },
+//     {
+//       icon: <Users size={42} />,
+//       title: "Workshops",
+//       desc: "Learn from industry experts and master cutting-edge technologies.",
+//     },
+//   ];
+
+//   return (
+//     <div
+//       style={{
+//         minHeight: "100vh",
+//         background:
+//           "radial-gradient(circle at 20% 20%, rgba(0,149,255,0.25), transparent 20%), radial-gradient(circle at 80% 30%, rgba(255,255,255,0.12), transparent 12%), radial-gradient(circle at 50% 80%, rgba(0,89,255,0.18), transparent 30%), linear-gradient(180deg, #020617 0%, #07152f 35%, #081f45 65%, #020617 100%)",
+//         color: "white",
+//         overflow: "hidden",
+//         position: "relative",
+//         fontFamily: "'Poppins', sans-serif",
+//       }}
+//     >
+//       {/* Stars */}
+//       <div
+//         style={{
+//           position: "absolute",
+//           inset: 0,
+//           backgroundImage: `
+//             radial-gradient(2px 2px at 20px 30px, white, transparent),
+//             radial-gradient(2px 2px at 150px 120px, white, transparent),
+//             radial-gradient(1.5px 1.5px at 300px 80px, white, transparent),
+//             radial-gradient(2px 2px at 500px 200px, white, transparent),
+//             radial-gradient(2px 2px at 700px 100px, white, transparent),
+//             radial-gradient(1.5px 1.5px at 900px 250px, white, transparent),
+//             radial-gradient(2px 2px at 1200px 150px, white, transparent)
+//           `,
+//           opacity: 0.8,
+//           zIndex: 0,
+//         }}
+//       />
+
+//       {/* Navbar */}
+//       <nav
+//         style={{
+//           display: "flex",
+//           justifyContent: "space-between",
+//           alignItems: "center",
+//           padding: "30px 80px",
+//           position: "relative",
+//           zIndex: 10,
+//         }}
+//       >
+//         <h1
+//           style={{
+//             fontSize: "2rem",
+//             fontWeight: "800",
+//             letterSpacing: "1px",
+//           }}
+//         >
+//           incridea
+//         </h1>
+
+//         <div
+//           style={{
+//             display: "flex",
+//             gap: "40px",
+//             fontSize: "1.1rem",
+//           }}
+//         >
+//           {["Home", "Events", "Proshow", "Contact"].map((item) => (
+//             <a
+//               key={item}
+//               href="/"
+//               style={{
+//                 color: "white",
+//                 textDecoration: "none",
+//               }}
+//             >
+//               {item}
+//             </a>
+//           ))}
+//         </div>
+
+//         <button
+//           style={{
+//             padding: "14px 35px",
+//             borderRadius: "50px",
+//             border: "2px solid rgba(255,255,255,0.4)",
+//             background: "transparent",
+//             color: "white",
+//             cursor: "pointer",
+//             fontSize: "1rem",
+//           }}
+//         >
+//           Login
+//         </button>
+//       </nav>
+
+//       {/* Hero Section */}
+//       <section
+//         style={{
+//           minHeight: "90vh",
+//           display: "flex",
+//           alignItems: "center",
+//           justifyContent: "space-between",
+//           padding: "0 80px",
+//           position: "relative",
+//           zIndex: 2,
+//         }}
+//       >
+//         {/* Left Content */}
+//         <motion.div
+//           initial={{ opacity: 0, x: -80 }}
+//           animate={{ opacity: 1, x: 0 }}
+//           transition={{ duration: 1 }}
+//           style={{ flex: 1 }}
+//         >
+//           <div
+//             style={{
+//               display: "inline-flex",
+//               alignItems: "center",
+//               gap: "10px",
+//               padding: "12px 24px",
+//               borderRadius: "50px",
+//               background: "rgba(255,255,255,0.1)",
+//               backdropFilter: "blur(10px)",
+//               marginBottom: "30px",
+//             }}
+//           >
+//             <Sparkles size={20} />
+//             Annual Tech Fest 2025
+//           </div>
+
+//           <h1
+//             style={{
+//               fontSize: "8rem",
+//               fontWeight: "900",
+//               lineHeight: "0.9",
+//               marginBottom: "20px",
+//               letterSpacing: "-5px",
+//             }}
+//           >
+//             INCRI<span style={{ color: "#60a5fa" }}>DEA</span>
+//           </h1>
+
+//           <p
+//             style={{
+//               fontSize: "2rem",
+//               marginBottom: "50px",
+//               color: "#d1d5db",
+//             }}
+//           >
+//             Explore the Infinite.
+//           </p>
+
+//           <motion.button
+//             whileHover={{ scale: 1.05 }}
+//             whileTap={{ scale: 0.95 }}
+//             style={{
+//               display: "flex",
+//               alignItems: "center",
+//               gap: "15px",
+//               padding: "22px 45px",
+//               borderRadius: "70px",
+//               border: "none",
+//               background: "linear-gradient(135deg, #2563eb, #60a5fa)",
+//               color: "white",
+//               fontSize: "1.4rem",
+//               cursor: "pointer",
+//               boxShadow: "0 20px 40px rgba(37,99,235,0.4)",
+//             }}
+//           >
+//             See Events <ArrowRight size={28} />
+//           </motion.button>
+//         </motion.div>
+
+//         {/* Astronaut */}
+//         <motion.img
+//           src=""
+//           alt="astronaut"
+//           initial={{ opacity: 0, x: 100 }}
+//           animate={{
+//             opacity: 1,
+//             x: 0,
+//             y: [0, -20, 0],
+//           }}
+//           transition={{
+//             duration: 1.5,
+//             y: {
+//               repeat: Infinity,
+//               duration: 4,
+//             },
+//           }}
+//           style={{
+//             width: "700px",
+//             maxWidth: "50%",
+//             objectFit: "contain",
+//             filter: "drop-shadow(0 30px 50px rgba(0,0,0,0.5))",
+//           }}
+//         />
+//       </section>
+
+//       {/* Earth */}
+//       <div
+//         style={{
+//           position: "absolute",
+//           bottom: "-400px",
+//           left: "50%",
+//           transform: "translateX(-50%)",
+//           width: "1000px",
+//           height: "1000px",
+//           borderRadius: "50%",
+//           background:
+//             "radial-gradient(circle at 30% 30%, #93c5fd, #2563eb 40%, #0f172a 80%)",
+//           boxShadow:
+//             "0 0 100px rgba(59,130,246,0.6), inset -50px -50px 100px rgba(0,0,0,0.6)",
+//         }}
+//       />
+
+//       {/* Features */}
+//       <section
+//         style={{
+//           padding: "150px 80px",
+//           position: "relative",
+//           zIndex: 5,
+//         }}
+//       >
+//         <motion.h2
+//           initial={{ opacity: 0, y: 50 }}
+//           whileInView={{ opacity: 1, y: 0 }}
+//           style={{
+//             textAlign: "center",
+//             fontSize: "4rem",
+//             marginBottom: "80px",
+//           }}
+//         >
+//           Why Join Incridea?
+//         </motion.h2>
+
+//         <div
+//           style={{
+//             display: "grid",
+//             gridTemplateColumns: "repeat(auto-fit,minmax(320px,1fr))",
+//             gap: "40px",
+//           }}
+//         >
+//           {features.map((item, index) => (
+//             <motion.div
+//               key={index}
+//               whileHover={{ y: -15 }}
+//               initial={{ opacity: 0, y: 80 }}
+//               whileInView={{ opacity: 1, y: 0 }}
+//               transition={{ delay: index * 0.2 }}
+//               style={{
+//                 padding: "50px 35px",
+//                 borderRadius: "30px",
+//                 background: "rgba(255,255,255,0.08)",
+//                 backdropFilter: "blur(20px)",
+//                 border: "1px solid rgba(255,255,255,0.1)",
+//                 textAlign: "center",
+//               }}
+//             >
+//               <div
+//                 style={{
+//                   color: "#60a5fa",
+//                   marginBottom: "25px",
+//                 }}
+//               >
+//                 {item.icon}
+//               </div>
+
+//               <h3
+//                 style={{
+//                   fontSize: "2rem",
+//                   marginBottom: "20px",
+//                 }}
+//               >
+//                 {item.title}
+//               </h3>
+
+//               <p
+//                 style={{
+//                   color: "#d1d5db",
+//                   lineHeight: "1.8",
+//                   fontSize: "1.1rem",
+//                 }}
+//               >
+//                 {item.desc}
+//               </p>
+//             </motion.div>
+//           ))}
+//         </div>
+//       </section>
+
+//       {/* CTA */}
+//       <section
+//         style={{
+//           padding: "100px 80px 150px",
+//           textAlign: "center",
+//           position: "relative",
+//           zIndex: 5,
+//         }}
+//       >
+//         <motion.div
+//           initial={{ opacity: 0, scale: 0.9 }}
+//           whileInView={{ opacity: 1, scale: 1 }}
+//           style={{
+//             maxWidth: "900px",
+//             margin: "0 auto",
+//             padding: "80px",
+//             borderRadius: "40px",
+//             background: "rgba(255,255,255,0.08)",
+//             backdropFilter: "blur(25px)",
+//             border: "1px solid rgba(255,255,255,0.15)",
+//           }}
+//         >
+//           <h2
+//             style={{
+//               fontSize: "4rem",
+//               marginBottom: "20px",
+//             }}
+//           >
+//             Ready To Launch?
+//           </h2>
+
+//           <p
+//             style={{
+//               fontSize: "1.5rem",
+//               color: "#d1d5db",
+//               marginBottom: "40px",
+//             }}
+//           >
+//             Join the biggest technical festival of the year.
+//           </p>
+
+//           <motion.button
+//             whileHover={{ scale: 1.05 }}
+//             whileTap={{ scale: 0.95 }}
+//             style={{
+//               padding: "22px 50px",
+//               fontSize: "1.3rem",
+//               borderRadius: "60px",
+//               border: "none",
+//               background: "linear-gradient(135deg, #2563eb, #60a5fa)",
+//               color: "white",
+//               cursor: "pointer",
+//               display: "inline-flex",
+//               alignItems: "center",
+//               gap: "15px",
+//             }}
+//           >
+//             Register Now <ArrowRight size={26} />
+//           </motion.button>
+//         </motion.div>
+//       </section>
+//     </div>
+//   );
+// };
+
+// export default Home;

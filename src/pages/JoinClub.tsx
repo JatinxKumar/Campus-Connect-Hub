@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAppContext } from "@/context/AppContext";
+import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { Users, UserCircle } from "lucide-react";
 
@@ -15,6 +16,7 @@ const JoinClub = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { clubs, joinClub } = useAppContext();
+  const { isAuthenticated, user } = useAuth();
   const { toast } = useToast();
   const [formData, setFormData] = useState({
     name: "",
@@ -24,6 +26,25 @@ const JoinClub = () => {
   });
 
   const club = clubs.find(c => c.id === Number(id));
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      toast({
+        title: "Login Required",
+        description: "Please sign in before joining a club.",
+        variant: "destructive",
+      });
+      navigate("/login", { state: { from: { pathname: `/clubs/${id}/join` } } });
+    }
+  }, [id, isAuthenticated, navigate, toast]);
+
+  useEffect(() => {
+    setFormData((prev) => ({
+      ...prev,
+      name: user?.name || prev.name,
+      email: user?.email || prev.email,
+    }));
+  }, [user?.email, user?.name]);
 
   useEffect(() => {
     if (!club) {
@@ -46,7 +67,7 @@ const JoinClub = () => {
         title: "Successfully Joined!",
         description: `Welcome to ${club.name}! The coordinator will contact you soon.`,
       });
-      navigate("/clubs");
+      navigate("/dashboard");
     } catch (error) {
       toast({
         title: "Join failed",

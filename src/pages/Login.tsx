@@ -1,9 +1,26 @@
 import { FormEvent, useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Eye, EyeOff } from "lucide-react";
+import {
+  Eye,
+  EyeOff,
+  Mail,
+  Lock,
+  ArrowRight,
+  Sparkles,
+  Shield,
+  Chrome,
+} from "lucide-react";
+import { motion } from "framer-motion";
+
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -40,97 +57,147 @@ const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const googleButtonRef = useRef<HTMLDivElement | null>(null);
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isGoogleReady, setIsGoogleReady] = useState(false);
 
-  const from = (location.state as { from?: { pathname?: string } } | undefined)?.from?.pathname || "/admin";
-  const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined;
+  const from =
+    (location.state as { from?: { pathname?: string } } | undefined)?.from
+      ?.pathname || "/home";
 
-  const handleCredentialLogin = async (event: FormEvent<HTMLFormElement>) => {
+  const googleClientId = import.meta.env
+    .VITE_GOOGLE_CLIENT_ID as string | undefined;
+
+  const handleGoogleLogin = () => {
+    if (!googleClientId) {
+      toast({
+        title: "Google Client ID Missing",
+        description: "Add VITE_GOOGLE_CLIENT_ID in .env to enable Google sign in.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!isGoogleReady) {
+      toast({
+        title: "Google Sign In Loading",
+        description: "Google authentication is still initializing. Try again in a moment.",
+      });
+      return;
+    }
+
+    const googleButton = googleButtonRef.current?.querySelector("div[role='button']") as
+      | HTMLDivElement
+      | undefined;
+
+    if (!googleButton) {
+      toast({
+        title: "Google Sign In Unavailable",
+        description: "The Google sign in button could not be prepared. Refresh and try again.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    googleButton.click();
+  };
+
+  const handleCredentialLogin = async (
+    event: FormEvent<HTMLFormElement>
+  ) => {
     event.preventDefault();
+    setIsLoading(true);
 
     try {
       const isValid = await loginWithCredentials(email, password);
 
       if (!isValid) {
         toast({
-          title: "Invalid credentials",
-          description: "Check your email and password and try again.",
+          title: "Invalid Credentials",
+          description: "Please check your email and password.",
           variant: "destructive",
         });
         return;
       }
 
       toast({
-        title: "Login successful",
-        description: "Signed in successfully.",
+        title: "Welcome Back!",
+        description: "Successfully signed in.",
       });
+
       navigate(from, { replace: true });
     } catch (error) {
       toast({
-        title: "Login failed",
-        description: error instanceof Error ? error.message : "Unable to reach backend.",
+        title: "Login Failed",
+        description:
+          error instanceof Error
+            ? error.message
+            : "Something went wrong.",
         variant: "destructive",
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    if (isAuthenticated) {
-      return;
-    }
-
-    if (!googleClientId) {
-      return;
-    }
+    if (isAuthenticated || !googleClientId) return;
 
     const initializeGoogle = () => {
-      if (!window.google?.accounts?.id || !googleButtonRef.current) {
-        return;
-      }
+      if (!window.google?.accounts?.id || !googleButtonRef.current) return;
 
       window.google.accounts.id.initialize({
         client_id: googleClientId,
-        callback: (response) => {
-          const authenticate = async () => {
-            try {
-              const isValid = await loginWithGoogle(response.credential || "");
+        callback: async (response) => {
+          try {
+            const success = await loginWithGoogle(
+              response.credential || ""
+            );
 
-              if (!isValid) {
-                toast({
-                  title: "Login failed",
-                  description: "Unable to authenticate with Google.",
-                  variant: "destructive",
-                });
-                return;
-              }
-
+            if (!success) {
               toast({
-                title: "Login successful",
-                description: "Signed in with Google.",
-              });
-              navigate(from, { replace: true });
-            } catch (error) {
-              toast({
-                title: "Login failed",
-                description: error instanceof Error ? error.message : "Unable to authenticate with Google.",
+                title: "Google Login Failed",
+                description: "Unable to authenticate.",
                 variant: "destructive",
               });
+              return;
             }
-          };
 
-          void authenticate();
+            toast({
+              title: "Logged In Successfully",
+              description: "Welcome to CampusHub.",
+            });
+
+            navigate(from, { replace: true });
+          } catch (error) {
+            toast({
+              title: "Authentication Error",
+              description:
+                error instanceof Error
+                  ? error.message
+                  : "Google authentication failed.",
+              variant: "destructive",
+            });
+          }
         },
       });
 
       googleButtonRef.current.innerHTML = "";
-      window.google.accounts.id.renderButton(googleButtonRef.current, {
-        theme: "outline",
-        size: "large",
-        width: "320",
-        text: "continue_with",
-      });
+
+      window.google.accounts.id.renderButton(
+        googleButtonRef.current,
+        {
+          theme: "filled_black",
+          size: "large",
+          width: "380",
+          text: "continue_with",
+        }
+      );
+
+      setIsGoogleReady(true);
     };
 
     if (window.google?.accounts?.id) {
@@ -143,97 +210,202 @@ const Login = () => {
     script.async = true;
     script.defer = true;
     script.onload = initializeGoogle;
+    script.onerror = () => {
+      setIsGoogleReady(false);
+      toast({
+        title: "Google Sign In Failed",
+        description: "Google authentication script could not be loaded.",
+        variant: "destructive",
+      });
+    };
+
     document.body.appendChild(script);
 
     return () => {
-      document.body.removeChild(script);
+      setIsGoogleReady(false);
+      if (document.body.contains(script)) {
+        document.body.removeChild(script);
+      }
     };
-  }, [from, googleClientId, isAuthenticated, loginWithGoogle, navigate, toast]);
+  }, [
+    from,
+    googleClientId,
+    isAuthenticated,
+    loginWithGoogle,
+    navigate,
+    toast,
+  ]);
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen bg-slate-950 text-white overflow-hidden">
       <Navbar />
 
-      <main className="flex-1 container mx-auto px-4 py-12 flex items-center justify-center">
-        <Card className="w-full max-w-md">
-          <CardHeader>
-            <CardTitle>{isAuthenticated ? "Already Logged In" : "Admin Login"}</CardTitle>
-            <CardDescription>
-              {isAuthenticated
-                ? "You are already authenticated."
-                : "Use your account credentials or continue with Google to access the admin dashboard."}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {isAuthenticated ? (
-              <div className="space-y-3">
-                {user && (
-                  <p className="text-sm text-muted-foreground">
-                    Signed in as {user.name}
-                  </p>
-                )}
-                <Link to="/admin" className="block">
-                  <Button className="w-full">Go to Admin Dashboard</Button>
-                </Link>
-                <Link to="/logout" className="block">
-                  <Button variant="outline" className="w-full">Logout</Button>
-                </Link>
+      <main className="relative flex-1 flex items-center justify-center px-4 py-20">
+        {/* Background */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-0 left-1/4 w-96 h-96 bg-sky-500/20 rounded-full blur-3xl animate-pulse" />
+          <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-indigo-500/20 rounded-full blur-3xl animate-pulse" />
+        </div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7 }}
+          className="relative z-10 w-full max-w-md"
+        >
+          <Card className="border-white/10 bg-white/5 backdrop-blur-2xl shadow-2xl rounded-3xl">
+            <CardHeader className="space-y-6 text-center pb-8">
+              <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br from-sky-500 to-indigo-600 shadow-2xl shadow-sky-500/30">
+                <Sparkles className="h-10 w-10 text-white" />
               </div>
-            ) : (
-              <div className="space-y-5">
-                <form onSubmit={handleCredentialLogin} className="space-y-3">
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      value={email}
-                      onChange={(event) => setEmail(event.target.value)}
-                      placeholder="you@college.edu"
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="password">Password</Label>
-                    <div className="relative">
-                      <Input
-                        id="password"
-                        type={showPassword ? "text" : "password"}
-                        value={password}
-                        onChange={(event) => setPassword(event.target.value)}
-                        placeholder="Enter your password"
-                        required
-                        className="pr-10"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute inset-y-0 right-0 pr-3 flex items-center text-muted-foreground hover:text-foreground transition-colors"
-                        tabIndex={-1}
-                      >
-                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                      </button>
-                    </div>
-                  </div>
-                  <Button type="submit" className="w-full">Login</Button>
-                </form>
 
-                <p className="text-xs text-muted-foreground text-center">
-                  New here? <Link to="/create-account" className="font-medium underline underline-offset-4">Create an account</Link>
-                </p>
+              <div>
+                <CardTitle className="text-4xl font-bold text-white">
+                  Welcome Back
+                </CardTitle>
+                <CardDescription className="mt-3 text-slate-400 text-base">
+                  Access your clubs, events, and campus community.
+                </CardDescription>
+              </div>
+            </CardHeader>
 
-                <div className="flex justify-center">
-                  <div ref={googleButtonRef} />
+            <CardContent className="space-y-6">
+              {isAuthenticated ? (
+                <div className="space-y-4 text-center">
+                  <p className="text-slate-300">
+                    Signed in as
+                    <span className="ml-2 font-semibold text-sky-400">
+                      {user?.name}
+                    </span>
+                  </p>
+
+                  <Link to="/home">
+                    <Button className="w-full h-12 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-600">
+                      Go to Home
+                    </Button>
+                  </Link>
                 </div>
-                {!googleClientId && (
-                  <p className="text-xs text-muted-foreground text-center">
-                    Google Sign-In is optional. Add VITE_GOOGLE_CLIENT_ID to your .env file to enable it.
+              ) : (
+                <>
+                  <form
+                    onSubmit={handleCredentialLogin}
+                    className="space-y-5"
+                  >
+                    <div className="space-y-2">
+                      <Label>Email Address</Label>
+                      <div className="relative">
+                        <Mail className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-500" />
+                        <Input
+                          type="email"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          placeholder="you@college.edu"
+                          className="h-12 pl-12 bg-slate-900/70 border-slate-700 text-white"
+                          required
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Password</Label>
+                      <div className="relative">
+                        <Lock className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-500" />
+
+                        <Input
+                          type={showPassword ? "text" : "password"}
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          placeholder="Enter password"
+                          className="h-12 pl-12 pr-12 bg-slate-900/70 border-slate-700 text-white"
+                          required
+                        />
+
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setShowPassword(!showPassword)
+                          }
+                          className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
+                        >
+                          {showPassword ? (
+                            <EyeOff className="h-5 w-5" />
+                          ) : (
+                            <Eye className="h-5 w-5" />
+                          )}
+                        </button>
+                      </div>
+                    </div>
+
+                    <Button
+                      type="submit"
+                      disabled={isLoading}
+                      className="w-full h-12 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 shadow-lg shadow-sky-500/25"
+                    >
+                      {isLoading ? "Signing In..." : "Sign In"}
+                      <ArrowRight className="ml-2 h-5 w-5" />
+                    </Button>
+                  </form>
+
+                  {/* Google Sign In Divider */}
+<div className="relative my-6">
+  <div className="absolute inset-0 flex items-center">
+    <span className="w-full border-t border-slate-800" />
+  </div>
+
+  <div className="relative flex justify-center">
+    <button
+      type="button"
+      onClick={() => void handleGoogleLogin()}
+      className="group inline-flex items-center gap-3 rounded-2xl border border-slate-700 bg-slate-950 px-8 py-4 text-slate-200 shadow-lg transition-all duration-300 hover:border-sky-500 hover:bg-slate-900 hover:shadow-sky-500/20"
+    >
+      {/* Google Logo */}
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 48 48"
+        className="h-7 w-7"
+      >
+        <path
+          fill="#FFC107"
+          d="M43.611 20.083H42V20H24v8h11.303C33.654 32.657 29.233 36 24 36c-6.627 0-12-5.373-12-12S17.373 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"
+        />
+        <path
+          fill="#FF3D00"
+          d="M6.306 14.691l6.571 4.819C14.655 16.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 16.318 4 9.656 8.337 6.306 14.691z"
+        />
+        <path
+          fill="#4CAF50"
+          d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238C29.141 35.091 26.715 36 24 36c-5.211 0-9.617-3.329-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z"
+        />
+        <path
+          fill="#1976D2"
+          d="M43.611 20.083H42V20H24v8h11.303c-.793 2.237-2.231 4.166-4.084 5.571l6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"
+        />
+      </svg>
+
+      <span className="text-base font-semibold tracking-wide">
+        Continue with Google
+      </span>
+    </button>
+  </div>
+</div>
+
+                  <div ref={googleButtonRef} className="hidden" aria-hidden="true" />
+
+                  <p className="text-center text-sm text-slate-400">
+                    New here?{' '}
+                    <Link
+                      to="/create-account"
+                      className="font-semibold text-sky-400 hover:text-sky-300"
+                    >
+                      Create Account
+                    </Link>
                   </p>
-                )}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+
+                </>
+              )}
+            </CardContent>
+          </Card>
+        </motion.div>
       </main>
 
       <Footer />

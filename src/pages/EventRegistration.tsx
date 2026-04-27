@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAppContext } from "@/context/AppContext";
+import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { Calendar, Clock, MapPin, Users } from "lucide-react";
 
@@ -14,6 +15,7 @@ const EventRegistration = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { events, registerForEvent } = useAppContext();
+  const { isAuthenticated, user } = useAuth();
   const { toast } = useToast();
   const [formData, setFormData] = useState({
     name: "",
@@ -23,6 +25,25 @@ const EventRegistration = () => {
   });
 
   const event = events.find(e => e.id === Number(id));
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      toast({
+        title: "Login Required",
+        description: "Please sign in before registering for an event.",
+        variant: "destructive",
+      });
+      navigate("/login", { state: { from: { pathname: `/events/${id}/register` } } });
+    }
+  }, [id, isAuthenticated, navigate, toast]);
+
+  useEffect(() => {
+    setFormData((prev) => ({
+      ...prev,
+      name: user?.name || prev.name,
+      email: user?.email || prev.email,
+    }));
+  }, [user?.email, user?.name]);
 
   useEffect(() => {
     if (!event) {
@@ -59,7 +80,7 @@ const EventRegistration = () => {
         title: "Registration Successful!",
         description: `You're registered for ${event.title}. Check your email for details.`,
       });
-      navigate("/events");
+      navigate("/dashboard");
     } catch (error) {
       toast({
         title: "Registration failed",

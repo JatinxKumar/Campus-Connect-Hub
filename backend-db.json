@@ -108,9 +108,87 @@
       "password": "123456",
       "provider": "credentials",
       "createdAt": "2026-04-22T15:37:36.145Z"
+    },
+    {
+      "id": 5,
+      "name": "Jatin Sahil",
+      "email": "jatinsahil45@gmail.com",
+      "password": "",
+      "provider": "google",
+      "createdAt": "2026-04-27T08:24:14.442Z"
+    },
+    {
+      "id": 6,
+      "name": "Sahil Kumar",
+      "email": "s65257361@gmail.com",
+      "password": "",
+      "provider": "google",
+      "createdAt": "2026-04-27T08:28:33.707Z"
+    },
+    {
+      "id": 7,
+      "name": "JATIN KUMAR",
+      "email": "jatin0420.becse24@chitkara.edu.in",
+      "password": "",
+      "provider": "google",
+      "createdAt": "2026-04-27T08:32:55.152Z"
     }
   ],
   "loginHistory": [
+    {
+      "id": 17,
+      "user": {
+        "name": "jatin kumar",
+        "email": "jatinsahil45@gmail.com",
+        "picture": "https://lh3.googleusercontent.com/a/ACg8ocI39UqUkRb_v1sjE9J1uKe68RKgOID4Cra1uJTkktQ2BDGOYA=s96-c"
+      },
+      "password": "",
+      "provider": "google",
+      "at": "2026-04-27T08:33:20.193Z"
+    },
+    {
+      "id": 16,
+      "user": {
+        "name": "JATIN KUMAR",
+        "email": "jatin0420.becse24@chitkara.edu.in",
+        "picture": "https://lh3.googleusercontent.com/a/ACg8ocKpmSYDy7GGuSZ7-VbRmJSZK-i-K5e-EDPifRugG0JlfImNPA=s96-c"
+      },
+      "password": "",
+      "provider": "google",
+      "at": "2026-04-27T08:32:55.152Z"
+    },
+    {
+      "id": 15,
+      "user": {
+        "name": "jatin kumar",
+        "email": "jatinsahil45@gmail.com",
+        "picture": "https://lh3.googleusercontent.com/a/ACg8ocI39UqUkRb_v1sjE9J1uKe68RKgOID4Cra1uJTkktQ2BDGOYA=s96-c"
+      },
+      "password": "",
+      "provider": "google",
+      "at": "2026-04-27T08:29:31.310Z"
+    },
+    {
+      "id": 14,
+      "user": {
+        "name": "Sahil Kumar",
+        "email": "s65257361@gmail.com",
+        "picture": "https://lh3.googleusercontent.com/a/ACg8ocJdq_pqUBbjlMA5bJPwD6rYdjZrciYpft12DBKAo6tPAVWKFg=s96-c"
+      },
+      "password": "",
+      "provider": "google",
+      "at": "2026-04-27T08:28:33.707Z"
+    },
+    {
+      "id": 13,
+      "user": {
+        "name": "Jatin Sahil",
+        "email": "jatinsahil45@gmail.com"
+      },
+      "password": "",
+      "provider": "google",
+      "at": "2026-04-27T08:24:14.449Z"
+    },
     {
       "id": 12,
       "user": {

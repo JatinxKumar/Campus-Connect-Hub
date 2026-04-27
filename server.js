@@ -1,12 +1,18 @@
 import express from "express";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
+import { readFile, writeFile } from "fs/promises";
+import path from "path";
+import { fileURLToPath } from "url";
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 const MONGO_URI = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/campus-connect";
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const LOCAL_DB_PATH = path.join(__dirname, "backend-db.json");
 
 // Demo Constraints
 const DISABLED_DEMO_EMAIL = "admin@campusconnect.demo";
@@ -43,6 +49,28 @@ const LoginHistorySchema = new mongoose.Schema({
   at: { type: Date, default: Date.now }
 });
 const LoginHistory = mongoose.model("LoginHistory", LoginHistorySchema);
+
+const isMongoReady = () => mongoose.connection.readyState === 1;
+
+const loadLocalDb = async () => {
+  const raw = await readFile(LOCAL_DB_PATH, "utf8");
+  const parsed = JSON.parse(raw);
+  return {
+    clubs: Array.isArray(parsed.clubs) ? parsed.clubs : [],
+    users: Array.isArray(parsed.users) ? parsed.users : [],
+    loginHistory: Array.isArray(parsed.loginHistory) ? parsed.loginHistory : [],
+  };
+};
+
+const saveLocalDb = async (db) => {
+  await writeFile(LOCAL_DB_PATH, `${JSON.stringify(db, null, 2)}\n`, "utf8");
+};
+
+const getNextLocalId = (items) =>
+  items.reduce((highest, item) => {
+    const current = Number(item?.id) || 0;
+    return current > highest ? current : highest;
+  }, 0) + 1;
 
 // Helper for generating sequential IDs safely against MongoDB
 async function getNextId(Model) {
@@ -156,6 +184,31 @@ app.post("/auth/register", async (req, res) => {
       return res.status(400).json({ message: "Password must be at least 6 characters" });
     }
 
+    if (!isMongoReady()) {
+      const db = await loadLocalDb();
+      const existingUser = db.users.find((user) => user.email === normalizedEmail);
+      if (existingUser) {
+        return res.status(409).json({ message: "An account with this email already exists" });
+      }
+
+      const createdUser = {
+        id: getNextLocalId(db.users),
+        name: normalizedName,
+        email: normalizedEmail,
+        password: normalizedPassword,
+        provider: "credentials",
+        createdAt: new Date().toISOString(),
+      };
+
+      db.users.push(createdUser);
+      await saveLocalDb(db);
+
+      return res.status(201).json({
+        message: "Account created successfully",
+        user: { name: createdUser.name, email: createdUser.email },
+      });
+    }
+
     const existingUser = await User.findOne({ email: normalizedEmail });
     if (existingUser) {
       return res.status(409).json({ message: "An account with this email already exists" });
@@ -186,6 +239,67 @@ app.post("/auth/login", async (req, res) => {
     const { email, password, name, provider } = req.body || {};
     const normalizedEmail = typeof email === "string" ? email.trim().toLowerCase() : "";
     const normalizedProvider = provider === "google" ? "google" : "credentials";
+
+    if (!isMongoReady()) {
+      const db = await loadLocalDb();
+
+      if (normalizedProvider === "credentials") {
+        if (normalizedEmail === DISABLED_DEMO_EMAIL && password === DISABLED_DEMO_PASSWORD) {
+          return res.status(401).json({ message: "Demo credentials are disabled" });
+        }
+
+        const foundUser = db.users.find((user) => user.email === normalizedEmail);
+        if (!foundUser || foundUser.password !== password) {
+          return res.status(401).json({ message: "Invalid credentials" });
+        }
+
+        const userDetail = { name: foundUser.name, email: foundUser.email, picture: undefined };
+        db.loginHistory.unshift({
+          id: getNextLocalId(db.loginHistory),
+          user: userDetail,
+          password: foundUser.password,
+          provider: normalizedProvider,
+          at: new Date().toISOString(),
+        });
+        await saveLocalDb(db);
+
+        return res.json({ message: "Login recorded", user: userDetail });
+      }
+
+      if (!normalizedEmail || !name) {
+        return res.status(400).json({ message: "Google login requires email and name" });
+      }
+
+      let existingGoogleUser = db.users.find((user) => user.email === normalizedEmail);
+      if (!existingGoogleUser) {
+        existingGoogleUser = {
+          id: getNextLocalId(db.users),
+          name: name.trim(),
+          email: normalizedEmail,
+          password: "",
+          provider: "google",
+          createdAt: new Date().toISOString(),
+        };
+        db.users.push(existingGoogleUser);
+      }
+
+      const userDetail = {
+        name: typeof name === "string" && name.trim() ? name.trim() : "Google User",
+        email: normalizedEmail,
+        picture: typeof req.body?.picture === "string" ? req.body.picture : undefined,
+      };
+
+      db.loginHistory.unshift({
+        id: getNextLocalId(db.loginHistory),
+        user: userDetail,
+        password: "",
+        provider: normalizedProvider,
+        at: new Date().toISOString(),
+      });
+      await saveLocalDb(db);
+
+      return res.json({ message: "Login recorded", user: userDetail });
+    }
 
     if (normalizedProvider === "credentials") {
       if (normalizedEmail === DISABLED_DEMO_EMAIL && password === DISABLED_DEMO_PASSWORD) {
@@ -250,6 +364,11 @@ app.post("/auth/login", async (req, res) => {
 
 app.get("/auth/logins", async (req, res) => {
   try {
+    if (!isMongoReady()) {
+      const db = await loadLocalDb();
+      return res.json({ logins: db.loginHistory });
+    }
+
     const logins = await LoginHistory.find().sort({ at: -1 });
     res.json({ logins: logins.map(removeMongooseMetadata) });
   } catch (error) {
@@ -259,6 +378,11 @@ app.get("/auth/logins", async (req, res) => {
 
 app.get("/api/clubs", async (req, res) => {
   try {
+    if (!isMongoReady()) {
+      const db = await loadLocalDb();
+      return res.json({ clubs: db.clubs.sort((a, b) => a.id - b.id) });
+    }
+
     const clubs = await Club.find().sort({ id: 1 });
     res.json({ clubs: clubs.map(removeMongooseMetadata) });
   } catch (error) {
@@ -272,6 +396,24 @@ app.post("/api/clubs", async (req, res) => {
 
     if (!name || !description || !category || !coordinator) {
       return res.status(400).json({ message: "Missing required fields" });
+    }
+
+    if (!isMongoReady()) {
+      const db = await loadLocalDb();
+      const createdClub = {
+        id: getNextLocalId(db.clubs),
+        name: String(name).trim(),
+        description: String(description).trim(),
+        category: String(category).trim(),
+        members: 0,
+        coordinator: String(coordinator).trim(),
+        image: image ? String(image).trim() : "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=400&h=300&fit=crop",
+        featured: Boolean(featured),
+      };
+
+      db.clubs.push(createdClub);
+      await saveLocalDb(db);
+      return res.status(201).json({ message: "Club created", club: createdClub });
     }
 
     const id = await getNextId(Club);
@@ -296,6 +438,30 @@ app.post("/api/clubs", async (req, res) => {
 app.put("/api/clubs/:id", async (req, res) => {
   try {
     const clubId = Number(req.params.id);
+
+    if (!isMongoReady()) {
+      const db = await loadLocalDb();
+      const clubIndex = db.clubs.findIndex((club) => club.id === clubId);
+      if (clubIndex === -1) {
+        return res.status(404).json({ message: "Club not found" });
+      }
+
+      const updatedClub = {
+        ...db.clubs[clubIndex],
+        ...Object.fromEntries(
+          Object.entries(req.body || {}).filter(([key]) => key !== "id" && key !== "_id")
+        ),
+      };
+
+      if (Number.isInteger(req.body?.members)) {
+        updatedClub.members = req.body.members;
+      }
+
+      db.clubs[clubIndex] = updatedClub;
+      await saveLocalDb(db);
+      return res.json({ message: "Club updated", club: updatedClub });
+    }
+
     const existingClub = await Club.findOne({ id: clubId });
     if (!existingClub) {
       return res.status(404).json({ message: "Club not found" });
@@ -323,6 +489,19 @@ app.put("/api/clubs/:id", async (req, res) => {
 app.delete("/api/clubs/:id", async (req, res) => {
   try {
     const clubId = Number(req.params.id);
+
+    if (!isMongoReady()) {
+      const db = await loadLocalDb();
+      const clubIndex = db.clubs.findIndex((club) => club.id === clubId);
+      if (clubIndex === -1) {
+        return res.status(404).json({ message: "Club not found" });
+      }
+
+      const [removedClub] = db.clubs.splice(clubIndex, 1);
+      await saveLocalDb(db);
+      return res.json({ message: "Club deleted", club: removedClub });
+    }
+
     const removedClub = await Club.findOneAndDelete({ id: clubId });
 
     if (!removedClub) {
@@ -338,6 +517,19 @@ app.delete("/api/clubs/:id", async (req, res) => {
 app.post("/api/clubs/:id/join", async (req, res) => {
   try {
     const clubId = Number(req.params.id);
+
+    if (!isMongoReady()) {
+      const db = await loadLocalDb();
+      const club = db.clubs.find((entry) => entry.id === clubId);
+      if (!club) {
+        return res.status(404).json({ message: "Club not found" });
+      }
+
+      club.members += 1;
+      await saveLocalDb(db);
+      return res.json({ message: "Club member count updated", club });
+    }
+
     const club = await Club.findOne({ id: clubId });
 
     if (!club) {

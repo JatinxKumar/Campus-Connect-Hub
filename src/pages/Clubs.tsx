@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ClubCard from "@/components/ClubCard";
@@ -6,13 +6,25 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useAppContext } from "@/context/AppContext";
 import { Search, Filter, X } from "lucide-react";
+import { useSearchParams } from "react-router-dom";
 
 const Clubs = () => {
   const { clubs } = useAppContext();
+  const [searchParams] = useSearchParams();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
 
   const categories = ["All", ...new Set(clubs.map(club => club.category))];
+
+  useEffect(() => {
+    const querySearch = searchParams.get("search") || "";
+    const queryCategory = searchParams.get("category") || "All";
+
+    setSearchTerm(querySearch);
+    setSelectedCategory(
+      categories.includes(queryCategory) ? queryCategory : "All"
+    );
+  }, [categories, searchParams]);
 
   const filteredClubs = clubs.filter(club => {
     const matchesSearch = club.name.toLowerCase().includes(searchTerm.toLowerCase()) ||

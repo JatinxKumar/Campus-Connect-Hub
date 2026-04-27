@@ -1,167 +1,869 @@
+// import { useState, useEffect } from "react";
+// import { Link, useLocation, useNavigate } from "react-router-dom";
+// import {
+//   Menu,
+//   X,
+//   GraduationCap,
+//   Sun,
+//   Moon,
+//   ArrowLeftRight,
+//   ChevronDown,
+//   LogOut,
+//   ShieldCheck,
+// } from "lucide-react";
+// import { Button } from "./ui/button";
+// import { useAuth } from "@/context/AuthContext";
+// import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+// import {
+//   DropdownMenu,
+//   DropdownMenuContent,
+//   DropdownMenuItem,
+//   DropdownMenuLabel,
+//   DropdownMenuSeparator,
+//   DropdownMenuTrigger,
+// } from "@/components/ui/dropdown-menu";
+
+// const Navbar = () => {
+//   const [isOpen, setIsOpen] = useState(false);
+//   const location = useLocation();
+//   const navigate = useNavigate();
+//   const { isAuthenticated, user, logout, isAdmin } = useAuth();
+//   const [isDark, setIsDark] = useState(false);
+
+//   // Read role from local storage. Default to student if not set.
+//   const rawRole = typeof window !== "undefined" ? localStorage.getItem("appRole") : null;
+//   const appRole = rawRole === "admin" ? "admin" : "student";
+
+//   const handleSwitchRole = () => {
+//     localStorage.removeItem("appRole");
+//     navigate("/");
+//   };
+
+//   const handleLogout = () => {
+//     logout();
+//     setIsOpen(false);
+//     navigate("/login", { replace: true });
+//   };
+
+//   useEffect(() => {
+//     setIsDark(document.documentElement.classList.contains("dark"));
+//   }, []);
+
+//   const toggleTheme = () => {
+//     const root = document.documentElement;
+//     if (isDark) {
+//       root.classList.remove("dark");
+//       localStorage.setItem("theme", "light");
+//       setIsDark(false);
+//     } else {
+//       root.classList.add("dark");
+//       localStorage.setItem("theme", "dark");
+//       setIsDark(true);
+//     }
+//   };
+
+//   const formatName = (name: string) => {
+//     return name
+//       .split(' ')
+//       .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+//       .join(' ');
+//   };
+
+//   const getInitials = (name?: string) => {
+//     if (!name) {
+//       return "CU";
+//     }
+
+//     return name
+//       .split(" ")
+//       .filter(Boolean)
+//       .slice(0, 2)
+//       .map((word) => word.charAt(0).toUpperCase())
+//       .join("");
+//   };
+
+//   const baseNavItems = [
+//     { path: "/home", label: "Home" },
+//     { path: "/clubs", label: "Clubs" },
+//     { path: "/events", label: "Events" },
+//     { path: "https://www.chitkara.edu.in/", label: "About", external: true },
+//   ];
+
+//   const adminItems = appRole === "admin" ? [
+//     { path: "/admin", label: "Admin" },
+//     ...(isAuthenticated ? [] : [{ path: "/create-account", label: "Create Account" }])
+//   ] : [];
+
+//   const navItems = [
+//     ...baseNavItems,
+//     ...adminItems,
+//   ];
+
+//   const isActive = (path: string) => location.pathname === path;
+
+//   return (
+//     <nav className="sticky top-0 z-50 bg-secondary/80 backdrop-blur-xl border-b border-border/40 shadow-sm">
+//       <div className="container mx-auto px-4">
+//         <div className="flex items-center justify-between h-16 md:h-20">
+//           <Link to="/home" className="flex items-center gap-2 group">
+//             <div className="bg-gradient-to-br from-primary to-primary/80 rounded-xl p-2.5 transition-transform group-hover:scale-110 shadow-lg">
+//               <GraduationCap className="w-6 h-6 text-primary-foreground" />
+//             </div>
+//             <span className="text-xl md:text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">ClubHub</span>
+//           </Link>
+
+//           <div className="flex items-center gap-2 lg:gap-4">
+//             {/* Desktop Navigation */}
+//             <div className="hidden md:flex items-center gap-2 lg:gap-4">
+//               {navItems.map((item) => (
+//                 item.external ? (
+//                   <a key={item.path} href={item.path} target="_blank" rel="noopener noreferrer">
+//                     <Button variant="ghost" className="transition-all font-medium hover:text-primary">
+//                       {item.label}
+//                     </Button>
+//                   </a>
+//                 ) : (
+//                   <Link key={item.path} to={item.path}>
+//                     <Button
+//                       variant={isActive(item.path) ? "default" : "ghost"}
+//                       className="transition-all font-medium"
+//                     >
+//                       {item.label}
+//                     </Button>
+//                   </Link>
+//                 )
+//               ))}
+
+//               {isAuthenticated ? (
+//                 <DropdownMenu>
+//                   <DropdownMenuTrigger asChild>
+//                     <button className="group flex h-11 items-center gap-3 rounded-full border border-border/60 bg-background/80 px-2 py-1 text-left shadow-sm transition-all hover:border-primary/40 hover:bg-background focus:outline-none focus:ring-2 focus:ring-primary/30">
+//                       <Avatar className="h-8 w-8 ring-1 ring-border/70">
+//                         <AvatarImage src={user?.picture} alt={user?.name || "User"} />
+//                         <AvatarFallback className="bg-primary/10 text-xs font-semibold text-primary">
+//                           {getInitials(user?.name)}
+//                         </AvatarFallback>
+//                       </Avatar>
+//                       <div className="max-w-[160px] leading-tight">
+//                         <p className="truncate text-sm font-semibold text-foreground">
+//                           {formatName(user?.name || "Campus User")}
+//                         </p>
+//                         <p className="truncate text-xs text-muted-foreground">
+//                           {user?.email}
+//                         </p>
+//                       </div>
+//                       <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform group-data-[state=open]:rotate-180" />
+//                     </button>
+//                   </DropdownMenuTrigger>
+//                   <DropdownMenuContent align="end" className="w-64 rounded-2xl p-2">
+//                     <DropdownMenuLabel className="px-3 py-2">
+//                       <div className="space-y-1">
+//                         <p className="text-sm font-semibold text-foreground">
+//                           {formatName(user?.name || "Campus User")}
+//                         </p>
+//                         <p className="text-xs font-normal text-muted-foreground">
+//                           {user?.email}
+//                         </p>
+//                       </div>
+//                     </DropdownMenuLabel>
+//                     <DropdownMenuSeparator />
+//                     {isAdmin && (
+//                       <DropdownMenuItem
+//                         className="rounded-xl px-3 py-2"
+//                         onClick={() => navigate("/admin")}
+//                       >
+//                         <ShieldCheck className="mr-2 h-4 w-4 text-primary" />
+//                         Dashboard
+//                       </DropdownMenuItem>
+//                     )}
+//                     <DropdownMenuItem
+//                       className="rounded-xl px-3 py-2 text-destructive focus:text-destructive"
+//                       onClick={handleLogout}
+//                     >
+//                       <LogOut className="mr-2 h-4 w-4" />
+//                       Logout
+//                     </DropdownMenuItem>
+//                   </DropdownMenuContent>
+//                 </DropdownMenu>
+//               ) : (
+//                 <Link to="/login">
+//                   <Button
+//                     variant={isActive("/login") ? "default" : "ghost"}
+//                     className="transition-all font-medium"
+//                   >
+//                     Login
+//                   </Button>
+//                 </Link>
+//               )}
+//             </div>
+
+
+//             {/* Theme Toggle Button */}
+//             <Button
+//               variant="ghost"
+//               size="icon"
+//               onClick={toggleTheme}
+//               aria-label="Toggle theme"
+//               className="rounded-full"
+//             >
+//               {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+//             </Button>
+
+//             {/* Mobile Menu Button */}
+//             <button
+//               className="md:hidden p-2 hover:bg-secondary rounded-lg transition-colors hover:bg-secondary/80"
+//               onClick={() => setIsOpen(!isOpen)}
+//               aria-label="Toggle menu"
+//             >
+//               {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+//             </button>
+//           </div>
+//         </div>
+
+//         {/* Mobile Navigation */}
+//         {isOpen && (
+//           <div className="md:hidden py-4 space-y-2 animate-in slide-in-from-top-2 border-t border-border/40">
+//             {navItems.map((item) => (
+//               item.external ? (
+//                 <a key={item.path} href={item.path} onClick={() => setIsOpen(false)} target="_blank" rel="noopener noreferrer">
+//                   <Button variant="ghost" className="w-full justify-start font-medium hover:text-primary transition-all">
+//                     {item.label}
+//                   </Button>
+//                 </a>
+//               ) : (
+//                 <Link key={item.path} to={item.path} onClick={() => setIsOpen(false)}>
+//                   <Button
+//                     variant={isActive(item.path) ? "default" : "ghost"}
+//                     className="w-full justify-start font-medium transition-all"
+//                   >
+//                     {item.label}
+//                   </Button>
+//                 </Link>
+//               )
+//             ))}
+
+//             {isAuthenticated ? (
+//               <div className="rounded-2xl border border-border/60 bg-background/70 p-3">
+//                 <div className="flex items-center gap-3">
+//                   <Avatar className="h-10 w-10 ring-1 ring-border/70">
+//                     <AvatarImage src={user?.picture} alt={user?.name || "User"} />
+//                     <AvatarFallback className="bg-primary/10 text-xs font-semibold text-primary">
+//                       {getInitials(user?.name)}
+//                     </AvatarFallback>
+//                   </Avatar>
+//                   <div className="min-w-0">
+//                     <p className="truncate text-sm font-semibold text-foreground">
+//                       {formatName(user?.name || "Campus User")}
+//                     </p>
+//                     <p className="truncate text-xs text-muted-foreground">
+//                       {user?.email}
+//                     </p>
+//                   </div>
+//                 </div>
+
+//                 <div className="mt-3 space-y-2">
+//                   {isAdmin && (
+//                     <Button
+//                       variant="ghost"
+//                       onClick={() => {
+//                         setIsOpen(false);
+//                         navigate("/admin");
+//                       }}
+//                       className="w-full justify-start font-medium transition-all"
+//                     >
+//                       <ShieldCheck className="mr-2 h-4 w-4" />
+//                       Dashboard
+//                     </Button>
+//                   )}
+//                   <Button
+//                     variant="ghost"
+//                     onClick={handleLogout}
+//                     className="w-full justify-start font-medium text-destructive transition-all hover:text-destructive"
+//                   >
+//                     <LogOut className="mr-2 h-4 w-4" />
+//                     Logout
+//                   </Button>
+//                 </div>
+//               </div>
+//             ) : (
+//               <Link to="/login" onClick={() => setIsOpen(false)}>
+//                 <Button
+//                   variant={isActive("/login") ? "default" : "ghost"}
+//                   className="w-full justify-start font-medium transition-all"
+//                 >
+//                   Login
+//                 </Button>
+//               </Link>
+//             )}
+
+//             {/* Mobile Switch Role Button */}
+//             <Button
+//               variant="outline"
+//               onClick={handleSwitchRole}
+//               className="w-full justify-start font-medium transition-all mt-2 border-border"
+//             >
+//               <ArrowLeftRight className="mr-2 h-4 w-4" />
+//               Switch Role
+//             </Button>
+//           </div>
+//         )}
+//       </div>
+//     </nav>
+//   );
+// };
+
+// export default Navbar;
+
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Menu, X, GraduationCap, Sun, Moon, ArrowLeftRight } from "lucide-react";
+import {
+  Menu,
+  X,
+  GraduationCap,
+  Sun,
+  Moon,
+  ArrowLeftRight,
+  ChevronDown,
+  LogOut,
+  ShieldCheck,
+  User,
+  Bell,
+  Compass,
+  LayoutDashboard,
+  CalendarClock,
+} from "lucide-react";
+
 import { Button } from "./ui/button";
 import { useAuth } from "@/context/AuthContext";
+import { useAppContext } from "@/context/AppContext";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isDark, setIsDark] = useState(false);
+  const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false);
+
   const location = useLocation();
   const navigate = useNavigate();
-  const { isAuthenticated, user } = useAuth();
-  const [isDark, setIsDark] = useState(false);
 
-  // Read role from local storage. Default to student if not set.
-  const rawRole = typeof window !== "undefined" ? localStorage.getItem("appRole") : null;
+  const { isAuthenticated, user, logout, isAdmin } = useAuth();
+  const { clubs, events } = useAppContext();
+
+  const rawRole =
+    typeof window !== "undefined"
+      ? localStorage.getItem("appRole")
+      : null;
+
   const appRole = rawRole === "admin" ? "admin" : "student";
+
+  useEffect(() => {
+    setIsDark(document.documentElement.classList.contains("dark"));
+  }, []);
+
+  // ------------------------
+  // Utility Functions
+  // ------------------------
+  const formatName = (name?: string) => {
+    if (!name) return "Campus User";
+
+    return name
+      .split(" ")
+      .map(
+        (word) =>
+          word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+      )
+      .join(" ");
+  };
+
+  const getInitials = (name?: string) => {
+    if (!name) return "CU";
+
+    return name
+      .split(" ")
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((word) => word[0].toUpperCase())
+      .join("");
+  };
+
+  const isActive = (path: string) => location.pathname === path;
+  const clubCategories = [...new Set(clubs.map((club) => club.category))].slice(0, 6);
+  const notificationItems = [
+    {
+      id: "event",
+      title: events[0]?.title || "Fresh event update",
+      description: events[0]
+        ? `${events[0].category} is open for registrations`
+        : "A new event update is waiting for you",
+      action: () => navigate("/events"),
+    },
+    {
+      id: "clubs",
+      title: `${clubs.length}+ communities live`,
+      description: "Explore new clubs and find your next campus circle",
+      action: () => navigate("/clubs"),
+    },
+  ];
+  const unreadCount = isAuthenticated ? notificationItems.length : 0;
+
+  // ------------------------
+  // Handlers
+  // ------------------------
+  const toggleTheme = () => {
+    const root = document.documentElement;
+
+    if (isDark) {
+      root.classList.remove("dark");
+      localStorage.setItem("theme", "light");
+    } else {
+      root.classList.add("dark");
+      localStorage.setItem("theme", "dark");
+    }
+
+    setIsDark(!isDark);
+  };
+
+  const handleLogout = () => {
+    logout();
+    setIsOpen(false);
+    setIsLogoutDialogOpen(false);
+    navigate("/login", { replace: true });
+  };
 
   const handleSwitchRole = () => {
     localStorage.removeItem("appRole");
     navigate("/");
   };
 
-  useEffect(() => {
-    setIsDark(document.documentElement.classList.contains("dark"));
-  }, []);
-
-  const toggleTheme = () => {
-    const root = document.documentElement;
-    if (isDark) {
-      root.classList.remove("dark");
-      localStorage.setItem("theme", "light");
-      setIsDark(false);
-    } else {
-      root.classList.add("dark");
-      localStorage.setItem("theme", "dark");
-      setIsDark(true);
-    }
+  const handleExploreCategory = (category: string) => {
+    navigate(`/clubs?category=${encodeURIComponent(category)}`);
+    setIsOpen(false);
   };
 
-  const formatName = (name: string) => {
-    return name
-      .split(' ')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-      .join(' ');
-  };
-
+  // ------------------------
+  // Navigation Items
+  // ------------------------
   const baseNavItems = [
+    ...(isAuthenticated ? [{ path: "/dashboard", label: "Dashboard" }] : []),
     { path: "/home", label: "Home" },
     { path: "/clubs", label: "Clubs" },
     { path: "/events", label: "Events" },
-    { path: "https://www.chitkara.edu.in/", label: "About", external: true },
-  ];
-
-  const adminItems = appRole === "admin" ? [
-    { path: "/admin", label: "Admin" },
-    ...(isAuthenticated ? [] : [{ path: "/create-account", label: "Create Account" }])
-  ] : [];
-
-  const navItems = [
-    ...baseNavItems,
-    ...adminItems,
-    { 
-      path: isAuthenticated ? "/logout" : "/login", 
-      label: isAuthenticated ? (user?.name ? <span className="font-bold text-primary">{formatName(user.name)}</span> : "Logout") : "Login" 
+    {
+      path: "https://www.chitkara.edu.in/",
+      label: "About",
+      external: true,
     },
   ];
 
-  const isActive = (path: string) => location.pathname === path;
+  const adminItems =
+    appRole === "admin"
+      ? [
+          { path: "/admin", label: "Admin" },
+          ...(isAuthenticated
+            ? []
+            : [{ path: "/create-account", label: "Create Account" }]),
+        ]
+      : [];
+
+  const navItems = [...baseNavItems, ...adminItems];
 
   return (
-    <nav className="sticky top-0 z-50 bg-secondary/80 backdrop-blur-xl border-b border-border/40 shadow-sm">
+    <nav className="sticky top-0 z-50 border-b border-border/40 bg-background/80 backdrop-blur-xl shadow-sm">
       <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16 md:h-20">
-          <Link to="/home" className="flex items-center gap-2 group">
-            <div className="bg-gradient-to-br from-primary to-primary/80 rounded-xl p-2.5 transition-transform group-hover:scale-110 shadow-lg">
-              <GraduationCap className="w-6 h-6 text-primary-foreground" />
+        <div className="flex h-16 md:h-20 items-center justify-between">
+          {/* Logo */}
+          <Link to="/home" className="flex items-center gap-3 group">
+            <div className="rounded-2xl bg-gradient-to-br from-primary to-primary/80 p-2.5 shadow-lg transition-transform group-hover:scale-110">
+              <GraduationCap className="h-6 w-6 text-white" />
             </div>
-            <span className="text-xl md:text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">ClubHub</span>
+
+            <span className="bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-xl md:text-2xl font-bold text-transparent">
+              ClubHub
+            </span>
           </Link>
 
-          <div className="flex items-center gap-2 lg:gap-4">
-            {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center gap-2 lg:gap-4">
-              {navItems.map((item) => (
-                item.external ? (
-                  <a key={item.path} href={item.path} target="_blank" rel="noopener noreferrer">
-                    <Button variant="ghost" className="transition-all font-medium hover:text-primary">
-                      {item.label}
-                    </Button>
-                  </a>
-                ) : (
-                  <Link key={item.path} to={item.path}>
-                    <Button
-                      variant={isActive(item.path) ? "default" : "ghost"}
-                      className="transition-all font-medium"
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex items-center gap-2">
+            {navItems.map((item) =>
+              item.external ? (
+                <a
+                  key={item.path}
+                  href={item.path}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Button variant="ghost">
+                    {item.label}
+                  </Button>
+                </a>
+              ) : (
+                <Link key={item.path} to={item.path}>
+                  <Button
+                    variant={isActive(item.path) ? "default" : "ghost"}
+                  >
+                    {item.label}
+                  </Button>
+                </Link>
+              )
+            )}
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  className="gap-2"
+                >
+                  <Compass className="h-4 w-4" />
+                  Explore
+                  <ChevronDown className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-56 rounded-2xl p-2">
+                <DropdownMenuLabel className="px-3 py-2">
+                  Categories
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                {clubCategories.map((category) => (
+                  <DropdownMenuItem
+                    key={category}
+                    className="rounded-xl cursor-pointer"
+                    onClick={() => handleExploreCategory(category)}
+                  >
+                    {category}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+
+          {/* Right Side */}
+          <div className="flex items-center gap-2">
+            {/* User Section */}
+            {isAuthenticated ? (
+              <>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button className="relative hidden md:flex h-11 w-11 items-center justify-center rounded-full border border-border bg-background shadow-sm hover:border-primary/40 hover:shadow-md transition-all">
+                      <Bell className="h-5 w-5" />
+                      {unreadCount > 0 && (
+                        <>
+                          <span className="absolute right-2 top-2 h-2.5 w-2.5 rounded-full bg-red-500" />
+                          <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
+                            {unreadCount}
+                          </span>
+                        </>
+                      )}
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-80 rounded-2xl p-2">
+                    <DropdownMenuLabel className="px-3 py-2">
+                      Notifications
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    {notificationItems.map((item) => (
+                      <DropdownMenuItem
+                        key={item.id}
+                        className="cursor-pointer rounded-xl px-3 py-3"
+                        onClick={item.action}
+                      >
+                        <div className="space-y-1">
+                          <p className="text-sm font-semibold text-foreground">
+                            {item.title}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {item.description}
+                          </p>
+                        </div>
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button className="hidden md:flex items-center gap-3 rounded-full border border-border bg-background px-2 py-1.5 shadow-sm hover:shadow-md hover:border-primary/40 transition-all">
+                      <Avatar className="h-10 w-10 ring-2 ring-primary/10">
+                        <AvatarImage
+                          src={user?.picture}
+                          alt={user?.name || "User"}
+                        />
+                        <AvatarFallback className="bg-primary text-white font-semibold">
+                          {getInitials(user?.name)}
+                        </AvatarFallback>
+                      </Avatar>
+
+                      <div className="text-left max-w-[180px]">
+                        <p className="text-sm font-semibold truncate">
+                          {formatName(user?.name)}
+                        </p>
+                        <p className="text-xs text-muted-foreground truncate">
+                          Logged In
+                        </p>
+                      </div>
+
+                      <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                    </button>
+                  </DropdownMenuTrigger>
+
+                  <DropdownMenuContent
+                    align="end"
+                    className="w-72 rounded-2xl p-2"
+                  >
+                    <DropdownMenuLabel className="p-3">
+                      <div className="flex items-center gap-3">
+                        <Avatar className="h-12 w-12">
+                          <AvatarImage
+                            src={user?.picture}
+                            alt={user?.name || "User"}
+                          />
+                          <AvatarFallback className="bg-primary text-white">
+                            {getInitials(user?.name)}
+                          </AvatarFallback>
+                        </Avatar>
+
+                        <div className="min-w-0">
+                          <p className="font-semibold truncate">
+                            {formatName(user?.name)}
+                          </p>
+                          <p className="text-xs text-muted-foreground truncate">
+                            {user?.email}
+                          </p>
+                        </div>
+                      </div>
+                    </DropdownMenuLabel>
+
+                    <DropdownMenuSeparator />
+
+                    <DropdownMenuItem
+                      onClick={() => navigate("/dashboard")}
+                      className="rounded-xl cursor-pointer"
                     >
-                      {item.label}
-                    </Button>
-                  </Link>
-                )
-              ))}
-            </div>
+                      <LayoutDashboard className="mr-2 h-4 w-4" />
+                      Dashboard
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => navigate("/events")}
+                      className="rounded-xl cursor-pointer"
+                    >
+                      <CalendarClock className="mr-2 h-4 w-4" />
+                      Upcoming Events
+                    </DropdownMenuItem>
+                    {isAdmin && (
+                      <DropdownMenuItem
+                        onClick={() => navigate("/admin")}
+                        className="rounded-xl cursor-pointer"
+                      >
+                        <ShieldCheck className="mr-2 h-4 w-4 text-primary" />
+                        Admin Dashboard
+                      </DropdownMenuItem>
+                    )}
 
-            {/* Switch Role Button */}
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleSwitchRole}
-              aria-label="Switch Role"
-              className="hidden md:flex items-center gap-2 border-border hover:bg-secondary"
-            >
-              <ArrowLeftRight className="h-4 w-4" />
-              <span className="hidden lg:inline">Switch Role</span>
-            </Button>
+                    <DropdownMenuSeparator />
 
-            {/* Theme Toggle Button */}
+                    <DropdownMenuItem
+                      onClick={() => setIsLogoutDialogOpen(true)}
+                      className="rounded-xl cursor-pointer text-red-600 focus:text-red-600"
+                    >
+                      <LogOut className="mr-2 h-4 w-4" />
+                      Logout
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </>
+            ) : (
+              <Link to="/login" className="hidden md:block">
+                <Button>
+                  Login
+                </Button>
+              </Link>
+            )}
+
+            {/* Theme Toggle */}
             <Button
               variant="ghost"
               size="icon"
               onClick={toggleTheme}
-              aria-label="Toggle theme"
               className="rounded-full"
             >
-              {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+              {isDark ? (
+                <Sun className="h-5 w-5" />
+              ) : (
+                <Moon className="h-5 w-5" />
+              )}
             </Button>
 
-            {/* Mobile Menu Button */}
+            {/* Mobile Menu */}
             <button
-              className="md:hidden p-2 hover:bg-secondary rounded-lg transition-colors hover:bg-secondary/80"
               onClick={() => setIsOpen(!isOpen)}
-              aria-label="Toggle menu"
+              className="md:hidden rounded-lg p-2 hover:bg-muted transition-colors"
             >
-              {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              {isOpen ? (
+                <X className="h-6 w-6" />
+              ) : (
+                <Menu className="h-6 w-6" />
+              )}
             </button>
           </div>
         </div>
 
         {/* Mobile Navigation */}
         {isOpen && (
-          <div className="md:hidden py-4 space-y-2 animate-in slide-in-from-top-2 border-t border-border/40">
-            {navItems.map((item) => (
+          <div className="md:hidden border-t border-border py-4 space-y-2 animate-in slide-in-from-top-2">
+            <div className="rounded-2xl border p-3">
+              <p className="mb-3 text-sm font-semibold">Explore Categories</p>
+              <div className="flex flex-wrap gap-2">
+                {clubCategories.map((category) => (
+                  <button
+                    key={category}
+                    type="button"
+                    onClick={() => handleExploreCategory(category)}
+                    className="rounded-full border border-border bg-background px-3 py-1.5 text-xs font-medium"
+                  >
+                    {category}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {navItems.map((item) =>
               item.external ? (
-                <a key={item.path} href={item.path} onClick={() => setIsOpen(false)} target="_blank" rel="noopener noreferrer">
-                  <Button variant="ghost" className="w-full justify-start font-medium hover:text-primary transition-all">
+                <a
+                  key={item.path}
+                  href={item.path}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => setIsOpen(false)}
+                >
+                  <Button variant="ghost" className="w-full justify-start">
                     {item.label}
                   </Button>
                 </a>
               ) : (
-                <Link key={item.path} to={item.path} onClick={() => setIsOpen(false)}>
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  onClick={() => setIsOpen(false)}
+                >
                   <Button
                     variant={isActive(item.path) ? "default" : "ghost"}
-                    className="w-full justify-start font-medium transition-all"
+                    className="w-full justify-start"
                   >
                     {item.label}
                   </Button>
                 </Link>
               )
-            ))}
+            )}
 
-            {/* Mobile Switch Role Button */}
-            <Button 
-              variant="outline" 
-              onClick={handleSwitchRole} 
-              className="w-full justify-start font-medium transition-all mt-2 border-border"
+            {isAuthenticated ? (
+              <div className="mt-4 rounded-2xl border p-4 space-y-4">
+                <div className="flex items-center gap-3">
+                  <Avatar className="h-12 w-12">
+                    <AvatarImage src={user?.picture} />
+                    <AvatarFallback>
+                      {getInitials(user?.name)}
+                    </AvatarFallback>
+                  </Avatar>
+
+                  <div>
+                    <p className="font-semibold">
+                      {formatName(user?.name)}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {user?.email}
+                    </p>
+                  </div>
+                </div>
+
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start"
+                  onClick={() => {
+                    navigate("/dashboard");
+                    setIsOpen(false);
+                  }}
+                >
+                  <LayoutDashboard className="mr-2 h-4 w-4" />
+                  Dashboard
+                </Button>
+
+                {isAdmin && (
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start"
+                    onClick={() => {
+                      navigate("/admin");
+                      setIsOpen(false);
+                    }}
+                  >
+                    <ShieldCheck className="mr-2 h-4 w-4" />
+                    Admin Dashboard
+                  </Button>
+                )}
+
+                <div className="rounded-2xl border border-border/70 bg-background/70 p-3">
+                  <div className="mb-2 flex items-center gap-2">
+                    <Bell className="h-4 w-4 text-primary" />
+                    <p className="text-sm font-semibold">Notifications</p>
+                  </div>
+                  <div className="space-y-2">
+                    {notificationItems.map((item) => (
+                      <button
+                        key={item.id}
+                        type="button"
+                        onClick={() => {
+                          item.action();
+                          setIsOpen(false);
+                        }}
+                        className="w-full rounded-xl border border-border/60 bg-background px-3 py-2 text-left"
+                      >
+                        <p className="text-sm font-medium">{item.title}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {item.description}
+                        </p>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start text-red-600 hover:text-red-600"
+                  onClick={() => setIsLogoutDialogOpen(true)}
+                >
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Logout
+                </Button>
+              </div>
+            ) : (
+              <Link to="/login" onClick={() => setIsOpen(false)}>
+                <Button className="w-full">
+                  Login
+                </Button>
+              </Link>
+            )}
+
+            <Button
+              variant="outline"
+              className="w-full justify-start mt-2"
+              onClick={handleSwitchRole}
             >
               <ArrowLeftRight className="mr-2 h-4 w-4" />
               Switch Role
@@ -169,6 +871,31 @@ const Navbar = () => {
           </div>
         )}
       </div>
+
+      <AlertDialog
+        open={isLogoutDialogOpen}
+        onOpenChange={setIsLogoutDialogOpen}
+      >
+        <AlertDialogContent className="max-w-md rounded-2xl border-border/60">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Logout from ClubHub?</AlertDialogTitle>
+            <AlertDialogDescription>
+              You will be signed out from this session and returned to the login page.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="rounded-xl">
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              className="rounded-xl bg-red-600 hover:bg-red-700"
+              onClick={handleLogout}
+            >
+              Confirm Logout
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </nav>
   );
 };
