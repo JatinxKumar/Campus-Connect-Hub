@@ -255,7 +255,7 @@ const Profile = () => {
                 </div>
 
                 <div className="flex flex-col gap-3 sm:flex-row">
-                  <Link to="/home">
+                  <Link to="/">
                     <Button variant="outline" className="w-full rounded-xl border-slate-700 bg-slate-900/60 text-white hover:bg-slate-800 sm:w-auto">
                       Back to Home
                     </Button>

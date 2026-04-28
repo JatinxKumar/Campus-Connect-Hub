@@ -66,7 +66,7 @@ const Login = () => {
 
   const from =
     (location.state as { from?: { pathname?: string } } | undefined)?.from
-      ?.pathname || "/home";
+      ?.pathname || "/";
 
   const googleClientId = import.meta.env
     .VITE_GOOGLE_CLIENT_ID as string | undefined;
@@ -279,7 +279,7 @@ const Login = () => {
                     </span>
                   </p>
 
-                  <Link to="/home">
+                  <Link to="/">
                     <Button className="w-full h-12 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-600">
                       Go to Home
                     </Button>

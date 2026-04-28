@@ -463,7 +463,7 @@ const Navbar = () => {
   // ------------------------
   const baseNavItems = [
     ...(isAuthenticated ? [{ path: "/dashboard", label: "Dashboard" }] : []),
-    { path: "/home", label: "Home" },
+    { path: "/", label: "Home" },
     { path: "/clubs", label: "Clubs" },
     { path: "/events", label: "Events" },
     {
@@ -490,7 +490,7 @@ const Navbar = () => {
       <div className="container mx-auto px-4">
         <div className="flex h-16 md:h-20 items-center justify-between">
           {/* Logo */}
-          <Link to="/home" className="flex items-center gap-3 group">
+          <Link to="/" className="flex items-center gap-3 group">
             <div className="rounded-2xl bg-gradient-to-br from-primary to-primary/80 p-2.5 shadow-lg transition-transform group-hover:scale-110">
               <GraduationCap className="h-6 w-6 text-white" />
             </div>
