@@ -336,6 +336,7 @@ import {
 import { Button } from "./ui/button";
 import { useAuth } from "@/context/AuthContext";
 import { useAppContext } from "@/context/AppContext";
+import { useTheme } from "@/context/ThemeContext";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -358,8 +359,8 @@ import {
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [isDark, setIsDark] = useState(false);
   const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false);
+  const { theme, setTheme, isDark } = useTheme();
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -373,10 +374,6 @@ const Navbar = () => {
       : null;
 
   const appRole = rawRole === "admin" ? "admin" : "student";
-
-  useEffect(() => {
-    setIsDark(document.documentElement.classList.contains("dark"));
-  }, []);
 
   // ------------------------
   // Utility Functions
@@ -428,17 +425,7 @@ const Navbar = () => {
   // Handlers
   // ------------------------
   const toggleTheme = () => {
-    const root = document.documentElement;
-
-    if (isDark) {
-      root.classList.remove("dark");
-      localStorage.setItem("theme", "light");
-    } else {
-      root.classList.add("dark");
-      localStorage.setItem("theme", "dark");
-    }
-
-    setIsDark(!isDark);
+    setTheme(isDark ? "light" : "dark");
   };
 
   const handleLogout = () => {

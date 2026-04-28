@@ -83,7 +83,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-[#020617] text-white overflow-hidden">
+    <div className="min-h-screen bg-background text-foreground overflow-hidden">
       <Navbar />
 
       {/* Hero Section */}
@@ -96,15 +96,15 @@ export default function Home() {
             The Future of Campus Communities
           </Badge>
 
-          <h3 className="mx-auto max-w-5xl text-6xl font-black leading-tight md:text-8xl lg:text-9xl">
-            <span className="block text-white">{typedText}</span>
+          <h3 className="mx-auto max-w-4xl text-5xl font-black leading-tight md:text-6xl lg:text-7xl">
+            <span className="block text-foreground">{typedText}</span>
             <span className="block bg-gradient-to-r from-sky-400 via-indigo-400 to-pink-400 bg-clip-text text-transparent">
               Connect.
             </span>
-            <span className="block text-white">Lead.</span>
+            <span className="block text-foreground">Lead.</span>
           </h3>
 
-          <p className="mx-auto mt-8 max-w-3xl text-xl leading-relaxed text-slate-300 md:text-2xl">
+          <p className="mx-auto mt-8 max-w-3xl text-xl leading-relaxed text-muted-foreground md:text-2xl">
             Join elite communities, attend unforgettable events, and build
             experiences that shape your future.
           </p>
@@ -116,8 +116,8 @@ export default function Home() {
           >
             <div className="absolute -inset-1 rounded-3xl bg-gradient-to-r from-sky-500 via-indigo-500 to-pink-500 opacity-30 blur-xl" />
 
-            <div className="relative flex items-center rounded-3xl border border-white/10 bg-slate-950/90 backdrop-blur-2xl p-2">
-              <Search className="ml-5 h-6 w-6 text-slate-400" />
+            <div className="relative flex items-center rounded-3xl border border-border bg-background/90 backdrop-blur-2xl p-2">
+              <Search className="ml-5 h-6 w-6 text-muted-foreground" />
 
               <Input
                 value={searchQuery}
@@ -125,7 +125,7 @@ export default function Home() {
                 onFocus={() => setShowTrending(true)}
                 onBlur={() => setTimeout(() => setShowTrending(false), 200)}
                 placeholder="Search clubs, events, communities..."
-                className="h-16 border-0 bg-transparent text-lg text-white placeholder:text-slate-500 focus-visible:ring-0"
+                className="h-16 border-0 bg-transparent text-lg text-foreground placeholder:text-muted-foreground focus-visible:ring-0"
               />
 
               <Button
@@ -138,8 +138,8 @@ export default function Home() {
             </div>
 
             {showTrending && (
-              <div className="absolute left-0 right-0 top-full z-50 mt-4 rounded-3xl border border-white/10 bg-slate-950/95 p-6 backdrop-blur-2xl">
-                <p className="mb-4 text-left text-sm text-slate-400">
+              <div className="absolute left-0 right-0 top-full z-50 mt-4 rounded-3xl border border-border bg-background/95 p-6 backdrop-blur-2xl">
+                <p className="mb-4 text-left text-sm text-muted-foreground">
                   Trending Searches
                 </p>
 
@@ -152,7 +152,7 @@ export default function Home() {
                         setSearchQuery(trend);
                         navigate(`/clubs?search=${trend}`);
                       }}
-                      className="rounded-full border border-slate-700 bg-slate-800 px-5 py-2 text-sm transition hover:border-sky-400 hover:text-sky-400"
+                      className="rounded-full border border-border bg-secondary px-5 py-2 text-sm transition hover:border-sky-400 hover:text-sky-400"
                     >
                       #{trend}
                     </button>
@@ -168,7 +168,7 @@ export default function Home() {
               <button
                 key={category}
                 onClick={() => navigate(`/clubs?category=${category}`)}
-                className="rounded-full border border-slate-700 bg-slate-900/80 px-5 py-2 text-sm text-slate-300 backdrop-blur-xl transition-all hover:scale-105 hover:border-sky-400 hover:text-sky-400"
+                className="rounded-full border border-border bg-card/80 px-5 py-2 text-sm text-muted-foreground backdrop-blur-xl transition-all hover:scale-105 hover:border-sky-400 hover:text-sky-400"
               >
                 #{category}
               </button>
@@ -187,7 +187,7 @@ export default function Home() {
             <Link to="/events">
               <Button
                 variant="outline"
-                className="h-14 rounded-2xl border-slate-700 bg-slate-900/60 px-10 text-lg backdrop-blur-xl"
+                className="h-14 rounded-2xl border-border bg-card/60 px-10 text-lg backdrop-blur-xl"
               >
                 <Calendar className="mr-2 h-5 w-5" />
                 View Events
@@ -220,11 +220,11 @@ export default function Home() {
             ].map((stat) => (
               <div
                 key={stat.label}
-                className="rounded-3xl border border-white/10 bg-white/5 p-10 backdrop-blur-2xl"
+                className="rounded-3xl border border-border bg-card/40 p-10 backdrop-blur-2xl"
               >
                 <stat.icon className="mb-6 h-12 w-12 text-sky-400" />
                 <h3 className="text-5xl font-black">{stat.value}</h3>
-                <p className="mt-2 text-slate-400">{stat.label}</p>
+                <p className="mt-2 text-muted-foreground">{stat.label}</p>
               </div>
             ))}
           </div>
@@ -246,14 +246,14 @@ export default function Home() {
                 {recommendedClubs.map((club) => (
                   <div
                     key={club.id}
-                    className="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-2xl transition-all duration-500 hover:-translate-y-3 hover:border-emerald-400/40 hover:shadow-2xl hover:shadow-emerald-500/10"
+                    className="rounded-3xl border border-border bg-card/40 backdrop-blur-2xl transition-all duration-500 hover:-translate-y-3 hover:border-emerald-400/40 hover:shadow-2xl hover:shadow-emerald-500/10"
                   >
                     <ClubCard club={club} />
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="rounded-3xl border border-white/10 bg-white/5 p-10 text-slate-300 backdrop-blur-2xl">
+              <div className="rounded-3xl border border-border bg-card/40 p-10 text-muted-foreground backdrop-blur-2xl">
                 Your interest tags are saved. Join a few clubs to unlock sharper recommendations here.
               </div>
             )}
@@ -275,7 +275,7 @@ export default function Home() {
             {featuredClubs.map((club) => (
               <div
                 key={club.id}
-                className="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-2xl transition-all duration-500 hover:-translate-y-3 hover:border-sky-400/40 hover:shadow-2xl hover:shadow-sky-500/10"
+                className="rounded-3xl border border-border bg-card/40 backdrop-blur-2xl transition-all duration-500 hover:-translate-y-3 hover:border-sky-400/40 hover:shadow-2xl hover:shadow-sky-500/10"
               >
                 <ClubCard club={club} />
               </div>
@@ -298,7 +298,7 @@ export default function Home() {
             {upcomingEvents.map((event) => (
               <div
                 key={event.id}
-                className="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-2xl transition-all duration-500 hover:-translate-y-3 hover:border-pink-400/40 hover:shadow-2xl hover:shadow-pink-500/10"
+                className="rounded-3xl border border-border bg-card/40 backdrop-blur-2xl transition-all duration-500 hover:-translate-y-3 hover:border-pink-400/40 hover:shadow-2xl hover:shadow-pink-500/10"
               >
                 <EventCard event={event} />
               </div>

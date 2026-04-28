@@ -213,7 +213,7 @@ const Profile = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white overflow-hidden">
+    <div className="min-h-screen bg-background text-foreground overflow-hidden">
       <Navbar />
 
       <main className="relative px-4 py-16 md:py-24">
@@ -223,8 +223,8 @@ const Profile = () => {
         </div>
 
         <div className="relative mx-auto max-w-7xl space-y-8">
-          <Card className="border-white/10 bg-white/5 backdrop-blur-2xl shadow-2xl rounded-3xl">
-            <CardHeader className="border-b border-white/10 pb-8">
+          <Card className="border-border bg-card/40 backdrop-blur-2xl shadow-2xl rounded-3xl">
+            <CardHeader className="border-b border-border pb-8">
               <div className="flex flex-col gap-6 xl:flex-row xl:items-center xl:justify-between">
                 <div className="flex items-center gap-5">
                   <Avatar className="h-24 w-24 ring-4 ring-sky-500/20">
@@ -235,10 +235,10 @@ const Profile = () => {
                   </Avatar>
 
                   <div>
-                    <CardTitle className="text-3xl font-bold text-white">
+                    <CardTitle className="text-3xl font-bold text-foreground">
                       {formatName(user?.name)}
                     </CardTitle>
-                    <CardDescription className="mt-2 text-base text-slate-300">
+                    <CardDescription className="mt-2 text-base text-muted-foreground">
                       Your student dashboard and activity center
                     </CardDescription>
                     <div className="mt-4 flex flex-wrap items-center gap-3">
@@ -256,7 +256,7 @@ const Profile = () => {
 
                 <div className="flex flex-col gap-3 sm:flex-row">
                   <Link to="/">
-                    <Button variant="outline" className="w-full rounded-xl border-slate-700 bg-slate-900/60 text-white hover:bg-slate-800 sm:w-auto">
+                    <Button variant="outline" className="w-full rounded-xl border-border bg-card/60 text-foreground hover:bg-secondary sm:w-auto">
                       Back to Home
                     </Button>
                   </Link>
@@ -273,51 +273,51 @@ const Profile = () => {
             </CardHeader>
 
             <CardContent className="grid gap-6 p-6 md:grid-cols-4 md:p-8">
-              <div className="rounded-2xl border border-white/10 bg-slate-900/50 p-5">
+              <div className="rounded-2xl border border-border bg-card/50 p-5">
                 <div className="mb-4 flex items-center gap-3">
                   <div className="rounded-xl bg-sky-500/10 p-3 text-sky-400">
                     <Users className="h-5 w-5" />
                   </div>
                   <div>
-                    <p className="text-sm text-slate-400">Joined Clubs</p>
-                    <p className="font-semibold text-white">{joinedClubs.length}</p>
+                    <p className="text-sm text-muted-foreground">Joined Clubs</p>
+                    <p className="font-semibold text-foreground">{joinedClubs.length}</p>
                   </div>
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-white/10 bg-slate-900/50 p-5">
+              <div className="rounded-2xl border border-border bg-card/50 p-5">
                 <div className="mb-4 flex items-center gap-3">
                   <div className="rounded-xl bg-indigo-500/10 p-3 text-indigo-400">
                     <CalendarClock className="h-5 w-5" />
                   </div>
                   <div>
-                    <p className="text-sm text-slate-400">Registered Events</p>
-                    <p className="font-semibold text-white">{registeredEvents.length}</p>
+                    <p className="text-sm text-muted-foreground">Registered Events</p>
+                    <p className="font-semibold text-foreground">{registeredEvents.length}</p>
                   </div>
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-white/10 bg-slate-900/50 p-5">
+              <div className="rounded-2xl border border-border bg-card/50 p-5">
                 <div className="mb-4 flex items-center gap-3">
                   <div className="rounded-xl bg-emerald-500/10 p-3 text-emerald-400">
                     <ShieldCheck className="h-5 w-5" />
                   </div>
                   <div>
-                    <p className="text-sm text-slate-400">Attendance Score</p>
-                    <p className="font-semibold text-white">{attendanceScore}%</p>
+                    <p className="text-sm text-muted-foreground">Attendance Score</p>
+                    <p className="font-semibold text-foreground">{attendanceScore}%</p>
                   </div>
                 </div>
                 <Progress value={attendanceScore} className="h-2 bg-white/10" />
               </div>
 
-              <div className="rounded-2xl border border-white/10 bg-slate-900/50 p-5">
+              <div className="rounded-2xl border border-border bg-card/50 p-5">
                 <div className="mb-4 flex items-center gap-3">
                   <div className="rounded-xl bg-pink-500/10 p-3 text-pink-400">
                     <Award className="h-5 w-5" />
                   </div>
                   <div>
-                    <p className="text-sm text-slate-400">Active Badges</p>
-                    <p className="font-semibold text-white">{badges.length}</p>
+                    <p className="text-sm text-muted-foreground">Active Badges</p>
+                    <p className="font-semibold text-foreground">{badges.length}</p>
                   </div>
                 </div>
               </div>
@@ -326,32 +326,32 @@ const Profile = () => {
 
           <div className="grid gap-8 xl:grid-cols-[1.25fr_0.75fr]">
             <div className="space-y-8">
-              <Card className="border-white/10 bg-white/5 backdrop-blur-2xl rounded-3xl">
+              <Card className="border-border bg-card/40 backdrop-blur-2xl rounded-3xl">
                 <CardHeader>
-                  <CardTitle className="text-white">Activity Overview</CardTitle>
-                  <CardDescription className="text-slate-300">
+                  <CardTitle className="text-foreground">Activity Overview</CardTitle>
+                  <CardDescription className="text-muted-foreground">
                     Your current clubs, event registrations, and live participation trail.
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-8">
                   <div>
                     <div className="mb-4 flex items-center justify-between">
-                      <h3 className="text-lg font-semibold text-white">Joined Clubs</h3>
-                      <span className="text-sm text-slate-400">{joinedClubs.length} active</span>
+                      <h3 className="text-lg font-semibold text-foreground">Joined Clubs</h3>
+                      <span className="text-sm text-muted-foreground">{joinedClubs.length} active</span>
                     </div>
                     {joinedClubs.length ? (
                       <div className="grid gap-4 md:grid-cols-2">
                         {joinedClubs.map((club) => (
-                          <div key={club.id} className="flex items-center gap-4 rounded-2xl border border-white/10 bg-slate-900/50 p-4">
+                          <div key={club.id} className="flex items-center gap-4 rounded-2xl border border-border bg-card/50 p-4">
                             <img
                               src={club.image}
                               alt={club.name}
                               className="h-16 w-16 rounded-2xl object-cover"
                             />
                             <div className="min-w-0">
-                              <p className="font-semibold text-white">{club.name}</p>
-                              <p className="text-sm text-slate-400">{club.category}</p>
-                              <p className="truncate text-xs text-slate-500">
+                              <p className="font-semibold text-foreground">{club.name}</p>
+                              <p className="text-sm text-muted-foreground">{club.category}</p>
+                              <p className="truncate text-xs text-muted-foreground">
                                 Coordinator: {club.coordinator}
                               </p>
                             </div>
@@ -359,7 +359,7 @@ const Profile = () => {
                         ))}
                       </div>
                     ) : (
-                      <p className="text-sm text-slate-400">
+                      <p className="text-sm text-muted-foreground">
                         Join a club to start building your campus footprint.
                       </p>
                     )}
@@ -367,17 +367,17 @@ const Profile = () => {
 
                   <div>
                     <div className="mb-4 flex items-center justify-between">
-                      <h3 className="text-lg font-semibold text-white">Registered Events</h3>
-                      <span className="text-sm text-slate-400">{registeredEvents.length} tickets</span>
+                      <h3 className="text-lg font-semibold text-foreground">Registered Events</h3>
+                      <span className="text-sm text-muted-foreground">{registeredEvents.length} tickets</span>
                     </div>
                     {registeredEvents.length ? (
                       <div className="space-y-4">
                         {registeredEvents.map((registration) => (
-                          <div key={registration.ticketCode} className="rounded-2xl border border-white/10 bg-slate-900/50 p-4">
+                          <div key={registration.ticketCode} className="rounded-2xl border border-border bg-card/50 p-4">
                             <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                               <div>
-                                <p className="font-semibold text-white">{registration.event.title}</p>
-                                <p className="text-sm text-slate-400">
+                                <p className="font-semibold text-foreground">{registration.event.title}</p>
+                                <p className="text-sm text-muted-foreground">
                                   {formatDate(registration.event.date)} at {registration.event.venue}
                                 </p>
                                 <p className="mt-1 text-xs uppercase tracking-[0.18em] text-sky-300">
@@ -388,7 +388,7 @@ const Profile = () => {
                               <div className="flex flex-wrap gap-3">
                                 <Button
                                   variant="outline"
-                                  className="rounded-xl border-slate-700 bg-slate-950/40 text-white hover:bg-slate-900"
+                                  className="rounded-xl border-border bg-background/40 text-foreground hover:bg-card"
                                   onClick={() =>
                                     setActiveTicketId(
                                       activeTicketId === registration.eventId
@@ -416,19 +416,19 @@ const Profile = () => {
                                 <div className="grid gap-3 md:grid-cols-2">
                                   <div>
                                     <p className="text-xs uppercase tracking-[0.18em] text-sky-300">Event Club</p>
-                                    <p className="mt-1 font-medium text-white">{registration.event.club}</p>
+                                    <p className="mt-1 font-medium text-foreground">{registration.event.club}</p>
                                   </div>
                                   <div>
                                     <p className="text-xs uppercase tracking-[0.18em] text-sky-300">Registration Date</p>
-                                    <p className="mt-1 font-medium text-white">{formatDate(registration.registeredAt)}</p>
+                                    <p className="mt-1 font-medium text-foreground">{formatDate(registration.registeredAt)}</p>
                                   </div>
                                   <div>
                                     <p className="text-xs uppercase tracking-[0.18em] text-sky-300">Time</p>
-                                    <p className="mt-1 font-medium text-white">{registration.event.time}</p>
+                                    <p className="mt-1 font-medium text-foreground">{registration.event.time}</p>
                                   </div>
                                   <div>
                                     <p className="text-xs uppercase tracking-[0.18em] text-sky-300">Attendance</p>
-                                    <p className="mt-1 font-medium text-white">
+                                    <p className="mt-1 font-medium text-foreground">
                                       {registration.attendanceConfirmed ? "Confirmed" : "Awaiting check-in"}
                                     </p>
                                   </div>
@@ -439,7 +439,7 @@ const Profile = () => {
                         ))}
                       </div>
                     ) : (
-                      <p className="text-sm text-slate-400">
+                      <p className="text-sm text-muted-foreground">
                         Register for an event and your ticket stack will appear here.
                       </p>
                     )}
@@ -447,10 +447,10 @@ const Profile = () => {
                 </CardContent>
               </Card>
 
-              <Card className="border-white/10 bg-white/5 backdrop-blur-2xl rounded-3xl">
+              <Card className="border-border bg-card/40 backdrop-blur-2xl rounded-3xl">
                 <CardHeader>
-                  <CardTitle className="text-white">Skills & Interests</CardTitle>
-                  <CardDescription className="text-slate-300">
+                  <CardTitle className="text-foreground">Skills & Interests</CardTitle>
+                  <CardDescription className="text-muted-foreground">
                     Your interest tags power the recommendation engine on Home.
                   </CardDescription>
                 </CardHeader>
@@ -466,7 +466,7 @@ const Profile = () => {
                           className={`rounded-full border px-4 py-2 text-sm font-medium transition ${
                             active
                               ? "border-sky-400 bg-sky-500/15 text-sky-300"
-                              : "border-slate-700 bg-slate-900/60 text-slate-300 hover:border-sky-400/50"
+                              : "border-border bg-card/60 text-muted-foreground hover:border-sky-400/50"
                           }`}
                         >
                           {interest}
@@ -476,48 +476,48 @@ const Profile = () => {
                   </div>
 
                   <div className="space-y-3">
-                    <label className="text-sm font-medium text-slate-300">About Me</label>
+                    <label className="text-sm font-medium text-muted-foreground">About Me</label>
                     <Textarea
                       value={bio}
                       onChange={(event) => setBio(event.target.value)}
                       placeholder="Write a sharp student bio, your role, your goals, or what kind of teams you love working with."
                       rows={5}
-                      className="border-slate-700 bg-slate-900/60 text-white placeholder:text-slate-500"
+                      className="border-border bg-card/60 text-foreground placeholder:text-muted-foreground"
                     />
                   </div>
 
                   <div className="grid gap-4 md:grid-cols-3">
                     <div className="space-y-2">
-                      <label className="text-sm font-medium text-slate-300">GitHub</label>
+                      <label className="text-sm font-medium text-muted-foreground">GitHub</label>
                       <Input
                         value={socialLinks.github}
                         onChange={(event) =>
                           setSocialLinks((prev) => ({ ...prev, github: event.target.value }))
                         }
                         placeholder="https://github.com/username"
-                        className="border-slate-700 bg-slate-900/60 text-white placeholder:text-slate-500"
+                        className="border-border bg-card/60 text-foreground placeholder:text-muted-foreground"
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-sm font-medium text-slate-300">LinkedIn</label>
+                      <label className="text-sm font-medium text-muted-foreground">LinkedIn</label>
                       <Input
                         value={socialLinks.linkedin}
                         onChange={(event) =>
                           setSocialLinks((prev) => ({ ...prev, linkedin: event.target.value }))
                         }
                         placeholder="https://linkedin.com/in/username"
-                        className="border-slate-700 bg-slate-900/60 text-white placeholder:text-slate-500"
+                        className="border-border bg-card/60 text-foreground placeholder:text-muted-foreground"
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-sm font-medium text-slate-300">Portfolio</label>
+                      <label className="text-sm font-medium text-muted-foreground">Portfolio</label>
                       <Input
                         value={socialLinks.portfolio}
                         onChange={(event) =>
                           setSocialLinks((prev) => ({ ...prev, portfolio: event.target.value }))
                         }
                         placeholder="https://yourportfolio.com"
-                        className="border-slate-700 bg-slate-900/60 text-white placeholder:text-slate-500"
+                        className="border-border bg-card/60 text-foreground placeholder:text-muted-foreground"
                       />
                     </div>
                   </div>
@@ -534,39 +534,39 @@ const Profile = () => {
             </div>
 
             <div className="space-y-8">
-              <Card className="border-white/10 bg-white/5 backdrop-blur-2xl rounded-3xl">
+              <Card className="border-border bg-card/40 backdrop-blur-2xl rounded-3xl">
                 <CardHeader>
-                  <CardTitle className="text-white">Identity</CardTitle>
+                  <CardTitle className="text-foreground">Identity</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="rounded-2xl border border-white/10 bg-slate-900/50 p-4">
+                  <div className="rounded-2xl border border-border bg-card/50 p-4">
                     <div className="flex items-center gap-3">
                       <div className="rounded-xl bg-sky-500/10 p-3 text-sky-400">
                         <UserRound className="h-5 w-5" />
                       </div>
                       <div>
-                        <p className="text-sm text-slate-400">Full Name</p>
-                        <p className="font-semibold text-white">{formatName(user?.name)}</p>
+                        <p className="text-sm text-muted-foreground">Full Name</p>
+                        <p className="font-semibold text-foreground">{formatName(user?.name)}</p>
                       </div>
                     </div>
                   </div>
 
-                  <div className="rounded-2xl border border-white/10 bg-slate-900/50 p-4">
+                  <div className="rounded-2xl border border-border bg-card/50 p-4">
                     <div className="flex items-center gap-3">
                       <div className="rounded-xl bg-indigo-500/10 p-3 text-indigo-400">
                         <Mail className="h-5 w-5" />
                       </div>
                       <div className="min-w-0">
-                        <p className="text-sm text-slate-400">Email Address</p>
-                        <p className="truncate font-semibold text-white">{user?.email}</p>
+                        <p className="text-sm text-muted-foreground">Email Address</p>
+                        <p className="truncate font-semibold text-foreground">{user?.email}</p>
                       </div>
                     </div>
                   </div>
 
                   {(bio || userProfile?.bio) && (
-                    <div className="rounded-2xl border border-white/10 bg-slate-900/50 p-4">
-                      <p className="text-sm text-slate-400">Bio</p>
-                      <p className="mt-2 text-sm leading-6 text-slate-200">{bio || userProfile?.bio}</p>
+                    <div className="rounded-2xl border border-border bg-card/50 p-4">
+                      <p className="text-sm text-muted-foreground">Bio</p>
+                      <p className="mt-2 text-sm leading-6 text-foreground">{bio || userProfile?.bio}</p>
                     </div>
                   )}
 
@@ -576,13 +576,13 @@ const Profile = () => {
                         href={socialLinks.github}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center justify-between rounded-2xl border border-white/10 bg-slate-900/50 p-4 text-slate-200"
+                        className="flex items-center justify-between rounded-2xl border border-border bg-card/50 p-4 text-foreground"
                       >
                         <div className="flex items-center gap-3">
                           <Github className="h-5 w-5" />
                           <span>GitHub</span>
                         </div>
-                        <ExternalLink className="h-4 w-4 text-slate-400" />
+                        <ExternalLink className="h-4 w-4 text-muted-foreground" />
                       </a>
                     )}
                     {socialLinks.linkedin && (
@@ -590,13 +590,13 @@ const Profile = () => {
                         href={socialLinks.linkedin}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center justify-between rounded-2xl border border-white/10 bg-slate-900/50 p-4 text-slate-200"
+                        className="flex items-center justify-between rounded-2xl border border-border bg-card/50 p-4 text-foreground"
                       >
                         <div className="flex items-center gap-3">
                           <Linkedin className="h-5 w-5" />
                           <span>LinkedIn</span>
                         </div>
-                        <ExternalLink className="h-4 w-4 text-slate-400" />
+                        <ExternalLink className="h-4 w-4 text-muted-foreground" />
                       </a>
                     )}
                     {socialLinks.portfolio && (
@@ -604,69 +604,69 @@ const Profile = () => {
                         href={socialLinks.portfolio}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center justify-between rounded-2xl border border-white/10 bg-slate-900/50 p-4 text-slate-200"
+                        className="flex items-center justify-between rounded-2xl border border-border bg-card/50 p-4 text-foreground"
                       >
                         <div className="flex items-center gap-3">
                           <Globe className="h-5 w-5" />
                           <span>Portfolio</span>
                         </div>
-                        <ExternalLink className="h-4 w-4 text-slate-400" />
+                        <ExternalLink className="h-4 w-4 text-muted-foreground" />
                       </a>
                     )}
                   </div>
                 </CardContent>
               </Card>
 
-              <Card className="border-white/10 bg-white/5 backdrop-blur-2xl rounded-3xl">
+              <Card className="border-border bg-card/40 backdrop-blur-2xl rounded-3xl">
                 <CardHeader>
-                  <CardTitle className="text-white">Achievements & Badges</CardTitle>
-                  <CardDescription className="text-slate-300">
+                  <CardTitle className="text-foreground">Achievements & Badges</CardTitle>
+                  <CardDescription className="text-muted-foreground">
                     Earned from your real activity on the platform.
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {badges.length ? (
                     badges.map((badge) => (
-                      <div key={badge.id} className="rounded-2xl border border-white/10 bg-slate-900/50 p-4">
+                      <div key={badge.id} className="rounded-2xl border border-border bg-card/50 p-4">
                         <div className="flex items-start gap-3">
                           <div className="rounded-xl bg-amber-500/10 p-3 text-amber-400">
                             <Trophy className="h-5 w-5" />
                           </div>
                           <div>
-                            <p className="font-semibold text-white">{badge.label}</p>
-                            <p className="mt-1 text-sm text-slate-400">{badge.description}</p>
+                            <p className="font-semibold text-foreground">{badge.label}</p>
+                            <p className="mt-1 text-sm text-muted-foreground">{badge.description}</p>
                           </div>
                         </div>
                       </div>
                     ))
                   ) : (
-                    <p className="text-sm text-slate-400">
+                    <p className="text-sm text-muted-foreground">
                       Start joining clubs and events to unlock your first badges.
                     </p>
                   )}
                 </CardContent>
               </Card>
 
-              <Card className="border-white/10 bg-white/5 backdrop-blur-2xl rounded-3xl">
+              <Card className="border-border bg-card/40 backdrop-blur-2xl rounded-3xl">
                 <CardHeader>
-                  <CardTitle className="text-white">Certificates</CardTitle>
-                  <CardDescription className="text-slate-300">
+                  <CardTitle className="text-foreground">Certificates</CardTitle>
+                  <CardDescription className="text-muted-foreground">
                     Download certificates for events where attendance is confirmed.
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   {certificates.length ? (
                     certificates.map((registration) => (
-                      <div key={registration.ticketCode} className="flex items-center justify-between rounded-2xl border border-white/10 bg-slate-900/50 p-4">
+                      <div key={registration.ticketCode} className="flex items-center justify-between rounded-2xl border border-border bg-card/50 p-4">
                         <div>
-                          <p className="font-semibold text-white">{registration.event.title}</p>
-                          <p className="text-sm text-slate-400">
+                          <p className="font-semibold text-foreground">{registration.event.title}</p>
+                          <p className="text-sm text-muted-foreground">
                             Issued on {formatDate(registration.certificateIssuedAt!)}
                           </p>
                         </div>
                         <Button
                           variant="outline"
-                          className="rounded-xl border-slate-700 bg-slate-950/40 text-white"
+                          className="rounded-xl border-border bg-background/40 text-foreground"
                           onClick={() =>
                             downloadCertificate(
                               registration.event.title,
@@ -680,17 +680,17 @@ const Profile = () => {
                       </div>
                     ))
                   ) : (
-                    <p className="text-sm text-slate-400">
+                    <p className="text-sm text-muted-foreground">
                       Certificates will appear here after you confirm attendance on registered events.
                     </p>
                   )}
                 </CardContent>
               </Card>
 
-              <Card className="border-white/10 bg-white/5 backdrop-blur-2xl rounded-3xl">
+              <Card className="border-border bg-card/40 backdrop-blur-2xl rounded-3xl">
                 <CardHeader>
-                  <CardTitle className="text-white">Suggested For You</CardTitle>
-                  <CardDescription className="text-slate-300">
+                  <CardTitle className="text-foreground">Suggested For You</CardTitle>
+                  <CardDescription className="text-muted-foreground">
                     Matched using your selected interests.
                   </CardDescription>
                 </CardHeader>
@@ -700,16 +700,16 @@ const Profile = () => {
                       <Link
                         key={club.id}
                         to={`/clubs?category=${encodeURIComponent(club.category)}`}
-                        className="block rounded-2xl border border-white/10 bg-slate-900/50 p-4 transition hover:border-sky-400/40"
+                        className="block rounded-2xl border border-border bg-card/50 p-4 transition hover:border-sky-400/40"
                       >
-                        <p className="font-semibold text-white">{club.name}</p>
-                        <p className="mt-1 text-sm text-slate-400">
+                        <p className="font-semibold text-foreground">{club.name}</p>
+                        <p className="mt-1 text-sm text-muted-foreground">
                           {club.category} match based on your interest stack
                         </p>
                       </Link>
                     ))
                   ) : (
-                    <p className="text-sm text-slate-400">
+                    <p className="text-sm text-muted-foreground">
                       Add interests above to unlock smarter club suggestions.
                     </p>
                   )}

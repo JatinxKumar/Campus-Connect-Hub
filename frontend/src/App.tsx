@@ -85,6 +85,7 @@ import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { AppProvider } from "./context/AppContext";
 import { AuthProvider } from "./context/AuthContext";
+import { ThemeProvider } from "./context/ThemeContext";
 import AdminDashboard from "./pages/AdminDashboard";
 import Clubs from "./pages/Clubs";
 import CreateAccount from "./pages/CreateAccount";
@@ -101,63 +102,65 @@ import Profile from "./pages/Profile";
 const queryClient = new QueryClient();
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <AuthProvider>
-      <AppProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Routes>
-              {/* Main Landing Page - Ab direct domain par khulega */}
-              <Route path="/" element={<Home />} />
+  <ThemeProvider defaultTheme="system" storageKey="theme">
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <AppProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <Routes>
+                {/* Main Landing Page - Ab direct domain par khulega */}
+                <Route path="/" element={<Home />} />
 
-                {/* Agar koi galti se /home likhe, toh wo auto-redirect ho jaye main page par */}
-                <Route path="/home" element={<Navigate to="/" replace />} />
+                  {/* Agar koi galti se /home likhe, toh wo auto-redirect ho jaye main page par */}
+                  <Route path="/home" element={<Navigate to="/" replace />} />
 
-              {/* Public Routes */}
-              <Route path="/clubs" element={<Clubs />} />
-              <Route path="/clubs/:id/join" element={<JoinClub />} />
-              <Route path="/events" element={<Events />} />
-              <Route path="/events/:id/register" element={<EventRegistration />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/create-account" element={<CreateAccount />} />
-              <Route path="/logout" element={<Logout />} />
+                {/* Public Routes */}
+                <Route path="/clubs" element={<Clubs />} />
+                <Route path="/clubs/:id/join" element={<JoinClub />} />
+                <Route path="/events" element={<Events />} />
+                <Route path="/events/:id/register" element={<EventRegistration />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/create-account" element={<CreateAccount />} />
+                <Route path="/logout" element={<Logout />} />
 
-              {/* Protected Routes - Only for logged in users */}
-              <Route
-                path="/profile"
-                element={
-                  <ProtectedRoute>
-                    <Profile />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/dashboard"
-                element={
-                  <ProtectedRoute>
-                    <Profile />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/admin"
-                element={
-                  <ProtectedRoute>
-                    <AdminDashboard />
-                  </ProtectedRoute>
-                }
-              />
+                {/* Protected Routes - Only for logged in users */}
+                <Route
+                  path="/profile"
+                  element={
+                    <ProtectedRoute>
+                      <Profile />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/dashboard"
+                  element={
+                    <ProtectedRoute>
+                      <Profile />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/admin"
+                  element={
+                    <ProtectedRoute>
+                      <AdminDashboard />
+                    </ProtectedRoute>
+                  }
+                />
 
-              {/* 404 Catch-all Route */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </TooltipProvider>
-      </AppProvider>
-    </AuthProvider>
-  </QueryClientProvider>
+                {/* 404 Catch-all Route */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </BrowserRouter>
+          </TooltipProvider>
+        </AppProvider>
+      </AuthProvider>
+    </QueryClientProvider>
+  </ThemeProvider>
 );
 
 export default App;
