@@ -15,7 +15,7 @@ import { Users, UserCircle } from "lucide-react";
 const JoinClub = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { clubs, joinClub } = useAppContext();
+  const { clubs, submitClubApplication } = useAppContext();
   const { isAuthenticated, user } = useAuth();
   const { toast } = useToast();
   const [formData, setFormData] = useState({
@@ -62,10 +62,10 @@ const JoinClub = () => {
     if (!club) return;
 
     try {
-      await joinClub(club.id);
+      await submitClubApplication(club.id, formData);
       toast({
         title: "Successfully Joined!",
-        description: `Welcome to ${club.name}! The coordinator will contact you soon.`,
+        description: `Welcome to ${club.name}! Your details have been stored and the coordinator will contact you soon.`,
       });
       navigate("/dashboard");
     } catch (error) {

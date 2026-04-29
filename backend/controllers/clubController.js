@@ -1,4 +1,5 @@
 import Club from "../models/Club.js";
+import ClubMembership from "../models/ClubMembership.js";
 import { isMongoReady } from "../config/db.js";
 import { getNextId, loadLocalDb, saveLocalDb, getNextLocalId, removeMongooseMetadata } from "../utils/helpers.js";
 
@@ -165,5 +166,45 @@ export const joinClub = async (req, res) => {
     res.json({ message: "Club member count updated", club: removeMongooseMetadata(club) });
   } catch (error) {
     res.status(500).json({ message: "Failed to join club", error: error.message });
+  }
+};
+
+export const submitClubApplication = async (req, res) => {
+  try {
+    const clubId = Number(req.params.id);
+    const { name, email, rollNumber, reason, clubName } = req.body;
+
+    if (!name || !email || !rollNumber || !reason) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+
+    if (!isMongoReady()) {
+      return res.status(503).json({ message: "MongoDB is required for applications" });
+    }
+
+    const membershipId = await getNextId(ClubMembership);
+    const newMembership = new ClubMembership({
+      id: membershipId,
+      clubId,
+      clubName,
+      userName: name,
+      userEmail: email,
+      rollNumber,
+      reason,
+      status: "approved"
+    });
+
+    await newMembership.save();
+
+    // Also increment club member count
+    const club = await Club.findOne({ id: clubId });
+    if (club) {
+      club.members += 1;
+      await club.save();
+    }
+
+    res.status(201).json({ message: "Application submitted and joined successfully", membership: removeMongooseMetadata(newMembership) });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to submit application", error: error.message });
   }
 };

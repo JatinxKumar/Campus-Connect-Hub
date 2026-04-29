@@ -460,15 +460,14 @@ const Navbar = () => {
     },
   ];
 
-  const adminItems =
-    appRole === "admin"
-      ? [
-          { path: "/admin", label: "Admin" },
-          ...(isAuthenticated
-            ? []
-            : [{ path: "/create-account", label: "Create Account" }]),
-        ]
-      : [];
+  const adminItems = isAdmin
+    ? [
+        { path: "/admin", label: "Admin" },
+        ...(isAuthenticated
+          ? []
+          : [{ path: "/create-account", label: "Create Account" }]),
+      ]
+    : [];
 
   const navItems = [...baseNavItems, ...adminItems];
 
@@ -482,7 +481,7 @@ const Navbar = () => {
               <GraduationCap className="h-6 w-6 text-white" />
             </div>
 
-            <span className="bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-xl md:text-2xl font-bold text-transparent">
+            <span className="bg-gradient-to-r from-primary to-sky-400 bg-clip-text text-xl md:text-2xl font-bold text-transparent">
               ClubHub
             </span>
           </Link>
@@ -683,19 +682,7 @@ const Navbar = () => {
               </Link>
             )}
 
-            {/* Theme Toggle */}
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={toggleTheme}
-              className="rounded-full"
-            >
-              {isDark ? (
-                <Sun className="h-5 w-5" />
-              ) : (
-                <Moon className="h-5 w-5" />
-              )}
-            </Button>
+
 
             {/* Mobile Menu */}
             <button

@@ -1,5 +1,5 @@
 import express from "express";
-import { getClubs, createClub, updateClub, deleteClub, joinClub } from "../controllers/clubController.js";
+import { getClubs, createClub, updateClub, deleteClub, joinClub, submitClubApplication } from "../controllers/clubController.js";
 
 const router = express.Router();
 
@@ -8,5 +8,6 @@ router.post("/", createClub);
 router.put("/:id", updateClub);
 router.delete("/:id", deleteClub);
 router.post("/:id/join", joinClub);
+router.post("/:id/apply", submitClubApplication);
 
 export default router;

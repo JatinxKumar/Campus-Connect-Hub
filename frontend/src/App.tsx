@@ -102,7 +102,7 @@ import Profile from "./pages/Profile";
 const queryClient = new QueryClient();
 
 const App = () => (
-  <ThemeProvider defaultTheme="system" storageKey="theme">
+  <ThemeProvider defaultTheme="dark" storageKey="theme">
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <AppProvider>

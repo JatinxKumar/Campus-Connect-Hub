@@ -197,39 +197,89 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Stats */}
-      <section className="py-20">
-        <div className="container mx-auto px-4">
+      {/* Stats Section - Reimagined */}
+      <section className="py-24 relative overflow-hidden">
+        {/* Background Glows for Depth */}
+        <div className="absolute top-1/2 left-0 -translate-y-1/2 w-96 h-96 bg-primary/10 blur-[120px] rounded-full pointer-events-none" />
+        <div className="absolute bottom-0 right-0 w-96 h-96 bg-purple-500/10 blur-[120px] rounded-full pointer-events-none" />
+
+        <div className="container mx-auto px-4 relative z-10">
           <div className="grid gap-8 md:grid-cols-3">
             {[
               {
                 icon: Users,
-                value: `${clubs.length}+`,
+                value: clubs.length,
+                suffix: "+",
                 label: "Active Clubs",
+                description: "Vibrant student communities across all technical and cultural domains.",
+                color: "text-sky-400",
+                bg: "bg-sky-500/5",
+                border: "border-sky-500/20",
               },
               {
                 icon: Calendar,
-                value: `${events.length}+`,
+                value: events.length,
+                suffix: "+",
                 label: "Live Events",
+                description: "Workshops, hackathons, and cultural fests happening every week.",
+                color: "text-purple-400",
+                bg: "bg-purple-500/5",
+                border: "border-purple-500/20",
               },
               {
                 icon: Trophy,
-                value: "10K+",
-                label: "Students",
+                value: 10,
+                suffix: "K+",
+                label: "Active Students",
+                description: "Collaborative learners building their professional portfolios through campus life.",
+                color: "text-pink-400",
+                bg: "bg-pink-500/5",
+                border: "border-pink-500/20",
               },
-            ].map((stat) => (
-              <div
+            ].map((stat, idx) => (
+              <motion.div
                 key={stat.label}
-                className="rounded-3xl border border-border bg-card/40 p-10 backdrop-blur-2xl"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: idx * 0.1 }}
+                viewport={{ once: true }}
+                className={`group relative rounded-3xl border ${stat.border} ${stat.bg} p-8 backdrop-blur-3xl transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-primary/10`}
               >
-                <stat.icon className="mb-6 h-12 w-12 text-sky-400" />
-                <h3 className="text-5xl font-black">{stat.value}</h3>
-                <p className="mt-2 text-muted-foreground">{stat.label}</p>
-              </div>
+                {/* Decorative Icon Glow */}
+                <div className={`absolute top-8 right-8 opacity-0 group-hover:opacity-20 transition-opacity duration-500 blur-2xl ${stat.color}`}>
+                  <stat.icon className="h-16 w-16" />
+                </div>
+
+                <div className={`mb-6 inline-flex h-14 w-14 items-center justify-center rounded-2xl ${stat.bg} ${stat.color} border ${stat.border}`}>
+                  <stat.icon className="h-7 w-7" />
+                </div>
+
+                <div className="space-y-2">
+                  <h3 className="text-5xl font-black tracking-tight flex items-baseline">
+                    <span className="text-white">{stat.value}</span>
+                    <span className={`${stat.color} ml-1`}>{stat.suffix}</span>
+                  </h3>
+                  <p className="text-lg font-semibold text-foreground">{stat.label}</p>
+                  <p className="text-muted-foreground leading-relaxed">
+                    {stat.description}
+                  </p>
+                </div>
+
+                {/* Subtle Progress Bar Decoration */}
+                <div className="mt-6 h-1 w-full overflow-hidden rounded-full bg-white/5">
+                  <motion.div 
+                    initial={{ width: 0 }}
+                    whileInView={{ width: "100%" }}
+                    transition={{ duration: 1.5, delay: 0.5 }}
+                    className={`h-full bg-gradient-to-r from-transparent via-${stat.color.split('-')[1]}-500/40 to-transparent`}
+                  />
+                </div>
+              </motion.div>
             ))}
           </div>
         </div>
       </section>
+
 
       {isAuthenticated && userProfile?.interests.length ? (
         <section className="py-24">

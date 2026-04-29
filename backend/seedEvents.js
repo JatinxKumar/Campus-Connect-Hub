@@ -1,20 +1,10 @@
-export interface Event {
-  id: number;
-  title: string;
-  description: string;
-  club: string;
-  date: string;
-  time: string;
-  venue: string;
-  registrationOpen: boolean;
-  status?: "upcoming" | "ongoing" | "completed";
-  maxParticipants: number;
-  currentParticipants: number;
-  image: string;
-  category: string;
-}
+import mongoose from "mongoose";
+import dotenv from "dotenv";
+import Event from "./models/Event.js";
 
-export const events: Event[] = [
+dotenv.config();
+
+const initialEvents = [
   {
     id: 1,
     title: "HackFest 2024",
@@ -27,7 +17,8 @@ export const events: Event[] = [
     maxParticipants: 150,
     currentParticipants: 87,
     image: "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=800&h=600&fit=crop",
-    category: "Competition"
+    category: "Competition",
+    status: "upcoming"
   },
   {
     id: 2,
@@ -41,7 +32,8 @@ export const events: Event[] = [
     maxParticipants: 30,
     currentParticipants: 22,
     image: "https://images.unsplash.com/photo-1563191911-e65f8655ebf9?w=800&h=600&fit=crop",
-    category: "Competition"
+    category: "Competition",
+    status: "upcoming"
   },
   {
     id: 3,
@@ -55,7 +47,8 @@ export const events: Event[] = [
     maxParticipants: 500,
     currentParticipants: 456,
     image: "https://images.unsplash.com/photo-1507676184212-d03ab07a01bf?w=800&h=600&fit=crop",
-    category: "Performance"
+    category: "Performance",
+    status: "upcoming"
   },
   {
     id: 4,
@@ -69,7 +62,8 @@ export const events: Event[] = [
     maxParticipants: 40,
     currentParticipants: 31,
     image: "https://images.unsplash.com/photo-1542038784456-1ea8e935640e?w=800&h=600&fit=crop",
-    category: "Workshop"
+    category: "Workshop",
+    status: "upcoming"
   },
   {
     id: 5,
@@ -83,7 +77,8 @@ export const events: Event[] = [
     maxParticipants: 200,
     currentParticipants: 145,
     image: "https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?w=800&h=600&fit=crop",
-    category: "Social"
+    category: "Social",
+    status: "upcoming"
   },
   {
     id: 6,
@@ -97,6 +92,23 @@ export const events: Event[] = [
     maxParticipants: 15,
     currentParticipants: 9,
     image: "https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?w=800&h=600&fit=crop",
-    category: "Competition"
+    category: "Competition",
+    status: "upcoming"
   }
 ];
+
+async function seed() {
+  try {
+    await mongoose.connect(process.env.MONGO_URI);
+    console.log("Connected to MongoDB for full seeding...");
+    await Event.deleteMany({});
+    await Event.insertMany(initialEvents);
+    console.log("Seeded all 6 initial events successfully!");
+    process.exit(0);
+  } catch (err) {
+    console.error("Seeding failed:", err);
+    process.exit(1);
+  }
+}
+
+seed();

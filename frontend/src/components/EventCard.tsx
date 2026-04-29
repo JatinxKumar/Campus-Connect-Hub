@@ -25,12 +25,20 @@ const EventCard = ({ event }: EventCardProps) => {
           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-        <div className="absolute top-4 right-4 flex gap-2 z-10">
+        <div className="absolute top-4 right-4 flex gap-2 z-10 flex-col items-end">
           <Badge className="bg-accent text-accent-foreground font-semibold shadow-lg">{event.category}</Badge>
-          {event.registrationOpen && !isEventFull && (
+          
+          {event.status === "completed" && (
+            <Badge className="bg-slate-700 text-white font-semibold shadow-lg">Completed</Badge>
+          )}
+          {event.status === "ongoing" && (
+            <Badge className="bg-green-600 text-white font-semibold shadow-lg animate-pulse">Live Now</Badge>
+          )}
+          
+          {event.status !== "completed" && event.registrationOpen && !isEventFull && (
             <Badge className="bg-primary text-primary-foreground font-semibold shadow-lg animate-pulse">Open</Badge>
           )}
-          {isEventFull && (
+          {event.status !== "completed" && isEventFull && (
             <Badge className="bg-red-600 text-white font-semibold shadow-lg">Full</Badge>
           )}
         </div>
@@ -89,7 +97,20 @@ const EventCard = ({ event }: EventCardProps) => {
       </CardContent>
       
       <CardFooter>
-        {event.registrationOpen ? (
+        {event.status === "completed" ? (
+          <Button variant="secondary" disabled className="w-full font-semibold">
+            Event Completed
+          </Button>
+        ) : event.status === "ongoing" ? (
+          <Button 
+            variant="default"
+            className="w-full font-semibold bg-green-600 hover:bg-green-700"
+            onClick={() => navigate(`/events/${event.id}/register`)}
+          >
+            Join Live Event
+            <ArrowRight className="ml-2 w-4 h-4" />
+          </Button>
+        ) : event.registrationOpen ? (
           <Button 
             onClick={() => navigate(`/events/${event.id}/register`)}
             className="w-full group/btn font-semibold"

@@ -48,6 +48,8 @@ interface AppContextType {
   deleteEvent: (eventId: number) => void;
   registerForEvent: (eventId: number) => Promise<void>;
   joinClub: (clubId: number) => Promise<void>;
+  leaveClub: (clubId: number) => Promise<void>;
+  submitClubApplication: (clubId: number, formData: any) => Promise<void>;
   updateUserProfile: (updates: Partial<UserActivityProfile>) => void;
   markEventAttendance: (eventId: number) => void;
 }
@@ -99,7 +101,7 @@ const createTicketCode = (eventId: number) =>
 export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [clubs, setClubs] = useState<Club[]>(initialClubs);
   const [events, setEvents] = useState<Event[]>(initialEvents);
-  const [profilesByEmail, setProfilesByEmail] = useState<Record<string, UserActivityProfile>>(getStoredProfiles);
+  const [profilesByEmail, setProfilesByEmail] = useState<Record<string, UserActivityProfile>>({});
   const { user } = useAuth();
 
   const currentEmail = user?.email?.trim().toLowerCase() || "";
@@ -143,16 +145,11 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     const fetchClubs = async () => {
       try {
         const response = await fetch(apiUrl("/api/clubs"));
-        if (!response.ok) {
-          return;
-        }
-
-        const payload = (await response.json()) as { clubs?: Club[] };
-        if (Array.isArray(payload.clubs)) {
-          setClubs(payload.clubs);
-        }
-      } catch {
-        // Keep fallback data if backend is unavailable.
+        if (!response.ok) return;
+        const data = await response.json();
+        if (Array.isArray(data.clubs)) setClubs(data.clubs);
+      } catch (err) {
+        console.error("Failed to fetch clubs:", err);
       }
     };
 
@@ -164,50 +161,64 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       return;
     }
 
-    setProfilesByEmail((prev) => {
-      const existing = prev[currentEmail];
-      const nextProfile = existing
-        ? {
-            ...existing,
-            displayName: user?.name || existing.displayName,
+    const fetchProfile = async () => {
+      try {
+        const response = await fetch(apiUrl(`/auth/profile/${currentEmail}`));
+        if (response.ok) {
+          const data = await response.json();
+          if (data.profile) {
+            setProfilesByEmail(prev => ({
+              ...prev,
+              [currentEmail]: {
+                ...data.profile,
+                displayName: data.profile.name || data.profile.displayName
+              }
+            }));
           }
-        : createDefaultProfile(currentEmail, user?.name);
+        } else {
+          setProfilesByEmail(prev => ({
+            ...prev,
+            [currentEmail]: createDefaultProfile(currentEmail, user?.name)
+          }));
+        }
+      } catch (error) {
+        console.error("Failed to fetch profile:", error);
+      }
+    };
 
-      return {
-        ...prev,
-        [currentEmail]: nextProfile,
-      };
-    });
+    fetchProfile();
   }, [currentEmail, user?.name]);
 
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      window.localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(profilesByEmail));
-    }
-  }, [profilesByEmail]);
-
-  const updateCurrentProfile = (
+  const updateCurrentProfile = async (
     updater: (profile: UserActivityProfile) => UserActivityProfile
   ) => {
     if (!currentEmail) {
       return;
     }
 
-    setProfilesByEmail((prev) => {
-      const baseProfile = prev[currentEmail] || createDefaultProfile(currentEmail, user?.name);
-      return {
-        ...prev,
-        [currentEmail]: updater(baseProfile),
-      };
-    });
+    const baseProfile = profilesByEmail[currentEmail] || createDefaultProfile(currentEmail, user?.name);
+    const updatedProfile = updater(baseProfile);
+
+    setProfilesByEmail((prev) => ({
+      ...prev,
+      [currentEmail]: updatedProfile,
+    }));
+
+    try {
+      await fetch(apiUrl(`/auth/profile/${currentEmail}`), {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatedProfile),
+      });
+    } catch (error) {
+      console.error("Failed to sync profile with backend:", error);
+    }
   };
 
   const addClub = async (club: Club) => {
     const response = await fetch(apiUrl("/api/clubs"), {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(club),
     });
 
@@ -226,9 +237,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const updateClub = async (updatedClub: Club) => {
     const response = await fetch(apiUrl(`/api/clubs/${updatedClub.id}`), {
       method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(updatedClub),
     });
 
@@ -272,6 +281,75 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     setEvents((prev) => prev.filter((event) => event.id !== eventId));
   };
 
+  const joinClub = async (clubId: number) => {
+    if (!currentEmail) return;
+    try {
+      const response = await fetch(apiUrl("/auth/join-club"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: currentEmail, clubId }),
+      });
+      if (response.ok) {
+        const data = await response.json();
+        if (data.profile) {
+          setProfilesByEmail(prev => ({
+            ...prev,
+            [currentEmail]: {
+              ...data.profile,
+              displayName: data.profile.name || data.profile.displayName
+            }
+          }));
+        }
+      }
+    } catch (err) {
+      console.error("Failed to join club:", err);
+    }
+  };
+
+  const leaveClub = async (clubId: number) => {
+    if (!currentEmail) return;
+    try {
+      const response = await fetch(apiUrl("/auth/leave-club"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: currentEmail, clubId }),
+      });
+      if (response.ok) {
+        const data = await response.json();
+        if (data.profile) {
+          setProfilesByEmail(prev => ({
+            ...prev,
+            [currentEmail]: {
+              ...data.profile,
+              displayName: data.profile.name || data.profile.displayName
+            }
+          }));
+        }
+      }
+    } catch (err) {
+      console.error("Failed to leave club:", err);
+    }
+  };
+
+  const submitClubApplication = async (clubId: number, formData: any) => {
+    try {
+      const response = await fetch(apiUrl(`/api/clubs/${clubId}/apply`), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...formData, clubName: clubs.find(c => c.id === clubId)?.name }),
+      });
+
+      if (!response.ok) {
+        throw new Error(await parseApiError(response));
+      }
+
+      await joinClub(clubId);
+    } catch (err) {
+      console.error("Failed to submit application:", err);
+      throw err;
+    }
+  };
+
   const registerForEvent = async (eventId: number) => {
     const existingRegistration = userProfile?.eventRegistrations.some(
       (registration) => registration.eventId === eventId
@@ -300,34 +378,6 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         ...profile.eventRegistrations,
       ],
     }));
-  };
-
-  const joinClub = async (clubId: number) => {
-    const response = await fetch(apiUrl(`/api/clubs/${clubId}/join`), {
-      method: "POST",
-    });
-
-    if (!response.ok) {
-      throw new Error(await parseApiError(response));
-    }
-
-    const payload = (await response.json()) as { club?: Club };
-    if (payload.club) {
-      setClubs((prev) =>
-        prev.map((club) => (club.id === payload.club!.id ? payload.club! : club))
-      );
-    }
-
-    updateCurrentProfile((profile) => {
-      if (profile.joinedClubIds.includes(clubId)) {
-        return profile;
-      }
-
-      return {
-        ...profile,
-        joinedClubIds: [...profile.joinedClubIds, clubId],
-      };
-    });
   };
 
   const updateUserProfile = (updates: Partial<UserActivityProfile>) => {
@@ -380,6 +430,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         deleteEvent,
         registerForEvent,
         joinClub,
+        leaveClub,
+        submitClubApplication,
         updateUserProfile,
         markEventAttendance,
       }}

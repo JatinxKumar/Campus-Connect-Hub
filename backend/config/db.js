@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import Club from "../models/Club.js";
 
-const MONGO_URI = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/campus-connect";
+
 
 export const isMongoReady = () => mongoose.connection.readyState === 1;
 
@@ -41,6 +41,7 @@ const defaultClubs = [
 ];
 
 export const connectDB = async () => {
+  const MONGO_URI = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/campus-connect";
   try {
     await mongoose.connect(MONGO_URI);
     console.log("Successfully connected to MongoDB");

@@ -1,4 +1,4 @@
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,7 +12,9 @@ import { useAppContext } from "@/context/AppContext";
 import { useToast } from "@/hooks/use-toast";
 import { Club } from "@/data/clubsData";
 import { Event } from "@/data/eventsData";
-import { Users, Calendar, TrendingUp, Plus, Settings } from "lucide-react";
+import { Users, Calendar, TrendingUp, Plus, Settings, History, User, X, ShieldCheck } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { apiUrl } from "@/lib/api";
 
 const AdminDashboard = () => {
   const { clubs, events, addClub, updateClub, deleteClub, addEvent, updateEvent, deleteEvent } = useAppContext();
@@ -20,6 +22,30 @@ const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
   const [editingClubId, setEditingClubId] = useState<number | null>(null);
   const [editingEventId, setEditingEventId] = useState<number | null>(null);
+  const [logins, setLogins] = useState<any[]>([]);
+  const [isLoadingLogins, setIsLoadingLogins] = useState(false);
+
+  useEffect(() => {
+    if (activeTab === "logins") {
+      fetchLogins();
+    }
+  }, [activeTab]);
+
+  const fetchLogins = async () => {
+    setIsLoadingLogins(true);
+    try {
+      const response = await fetch(apiUrl("/auth/logins"));
+      if (response.ok) {
+        const data = await response.json();
+        setLogins(data.logins || []);
+      }
+    } catch (error) {
+      console.error("Failed to fetch logins:", error);
+    } finally {
+      setIsLoadingLogins(false);
+    }
+  };
+
 
   const [clubForm, setClubForm] = useState({
     name: "",
@@ -39,6 +65,7 @@ const AdminDashboard = () => {
     venue: "",
     maxParticipants: "",
     image: "",
+    status: "upcoming",
   });
 
   const totalMembers = clubs.reduce((sum, club) => sum + club.members, 0);
@@ -66,6 +93,7 @@ const AdminDashboard = () => {
       venue: "",
       maxParticipants: "",
       image: "",
+      status: "upcoming",
     });
     setEditingEventId(null);
   };
@@ -217,6 +245,7 @@ const AdminDashboard = () => {
       venue: eventForm.venue.trim(),
       maxParticipants,
       image: eventForm.image.trim() || "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=400&h=300&fit=crop",
+      status: eventForm.status as "upcoming" | "ongoing" | "completed",
     };
 
     if (editingEventId !== null) {
@@ -256,6 +285,7 @@ const AdminDashboard = () => {
       currentParticipants: 0,
       maxParticipants: sanitizedEvent.maxParticipants,
       image: sanitizedEvent.image,
+      status: sanitizedEvent.status,
     });
     toast({
       title: "Event Created!",
@@ -263,6 +293,7 @@ const AdminDashboard = () => {
     });
     resetEventForm();
   };
+
 
   const handleEditEvent = (event: Event) => {
     setEditingEventId(event.id);
@@ -276,6 +307,7 @@ const AdminDashboard = () => {
       venue: event.venue,
       maxParticipants: String(event.maxParticipants),
       image: event.image,
+      status: event.status || "upcoming",
     });
   };
 
@@ -320,7 +352,9 @@ const AdminDashboard = () => {
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="clubs">Manage Clubs</TabsTrigger>
             <TabsTrigger value="events">Manage Events</TabsTrigger>
+            <TabsTrigger value="logins">Login History</TabsTrigger>
           </TabsList>
+
 
           {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-6">
@@ -630,6 +664,23 @@ const AdminDashboard = () => {
                       placeholder="https://example.com/image.jpg"
                     />
                   </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="eventStatus">Event Status *</Label>
+                    <Select
+                      value={eventForm.status}
+                      onValueChange={(value) => setEventForm({ ...eventForm, status: value })}
+                      required
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="upcoming">Upcoming</SelectItem>
+                        <SelectItem value="ongoing">Ongoing</SelectItem>
+                        <SelectItem value="completed">Completed</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <Button type="submit" className="w-full">
                       {editingEventId !== null ? "Update Event" : "Create Event"}
@@ -652,20 +703,49 @@ const AdminDashboard = () => {
               <CardContent>
                 <div className="space-y-3">
                   {[...events].slice(-5).reverse().map((event) => (
-                    <div key={event.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-secondary/50 transition-colors">
-                      <div>
-                        <p className="font-medium">{event.title}</p>
+                    <div key={event.id} className="flex flex-col md:flex-row md:items-center justify-between p-4 border rounded-xl hover:bg-secondary/30 transition-all gap-4">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <p className="font-semibold text-lg">{event.title}</p>
+                          <Badge variant="outline" className={`
+                            ${event.status === 'completed' ? 'bg-slate-500/10 text-slate-400 border-slate-500/20' : 
+                              event.status === 'ongoing' ? 'bg-green-500/10 text-green-400 border-green-500/20 animate-pulse' : 
+                              'bg-primary/10 text-primary border-primary/20'}
+                           uppercase text-[10px] tracking-wider font-bold`}>
+                            {event.status || 'upcoming'}
+                          </Badge>
+                        </div>
                         <p className="text-sm text-muted-foreground">
                           {new Date(event.date).toLocaleDateString()} • {event.club}
                         </p>
                       </div>
-                      <div className="flex gap-2">
-                        <Button size="sm" variant="outline" type="button" onClick={() => handleEditEvent(event)}>
-                          Edit
-                        </Button>
-                        <Button size="sm" variant="outline" type="button" onClick={() => handleDeleteEvent(event)}>
-                          Cancel
-                        </Button>
+                      
+                      <div className="flex items-center gap-3">
+                        <Select
+                          value={event.status || 'upcoming'}
+                          onValueChange={(value) => {
+                            updateEvent({ ...event, status: value as any });
+                            toast({ title: "Status Updated", description: `${event.title} is now ${value}.` });
+                          }}
+                        >
+                          <SelectTrigger className="w-[130px] h-9">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="upcoming">Upcoming</SelectItem>
+                            <SelectItem value="ongoing">Ongoing</SelectItem>
+                            <SelectItem value="completed">Completed</SelectItem>
+                          </SelectContent>
+                        </Select>
+
+                        <div className="flex gap-2">
+                          <Button size="icon" variant="ghost" onClick={() => handleEditEvent(event)} className="h-9 w-9">
+                            <Settings className="h-4 w-4" />
+                          </Button>
+                          <Button size="icon" variant="ghost" onClick={() => handleDeleteEvent(event)} className="h-9 w-9 text-red-500 hover:text-red-600 hover:bg-red-500/10">
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -673,8 +753,93 @@ const AdminDashboard = () => {
               </CardContent>
             </Card>
           </TabsContent>
+          {/* Events Management Tab Content (already exists) */}
+          
+          {/* Login History Tab */}
+          <TabsContent value="logins" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="flex items-center gap-2">
+                      <History className="w-5 h-5" />
+                      User Login History
+                    </CardTitle>
+                    <CardDescription>
+                      Monitor recent authentication activity across the platform
+                    </CardDescription>
+                  </div>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={fetchLogins}
+                    disabled={isLoadingLogins}
+                  >
+                    {isLoadingLogins ? "Refreshing..." : "Refresh"}
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="rounded-xl border border-white/10 overflow-hidden bg-slate-900/50">
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse">
+                      <thead>
+                        <tr className="bg-white/5 text-slate-400 text-xs uppercase tracking-wider">
+                          <th className="px-6 py-4 font-semibold">User</th>
+                          <th className="px-6 py-4 font-semibold">Provider</th>
+                          <th className="px-6 py-4 font-semibold">Date</th>
+                          <th className="px-6 py-4 font-semibold">Time</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-white/5">
+                        {logins.length > 0 ? (
+                          logins.map((login) => (
+                            <tr key={login.id} className="hover:bg-white/5 transition-colors group">
+                              <td className="px-6 py-4">
+                                <div className="flex items-center gap-3">
+                                  <div className="h-8 w-8 rounded-full bg-sky-500/10 flex items-center justify-center text-sky-400">
+                                    <User className="h-4 w-4" />
+                                  </div>
+                                  <div>
+                                    <p className="text-sm font-medium text-white">{login.user?.name || "Unknown"}</p>
+                                    <p className="text-xs text-slate-500">{login.user?.email}</p>
+                                  </div>
+                                </div>
+                              </td>
+                              <td className="px-6 py-4">
+                                <span className={`inline-flex items-center px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider ${
+                                  login.provider === 'google' 
+                                    ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' 
+                                    : 'bg-slate-500/10 text-slate-400 border border-slate-500/20'
+                                }`}>
+                                  {login.provider}
+                                </span>
+                              </td>
+                              <td className="px-6 py-4 text-sm text-slate-300">
+                                {new Date(login.at).toLocaleDateString()}
+                              </td>
+                              <td className="px-6 py-4 text-sm text-slate-300">
+                                {new Date(login.at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                              </td>
+                            </tr>
+                          ))
+                        ) : (
+                          <tr>
+                            <td colSpan={4} className="px-6 py-12 text-center text-slate-500 italic">
+                              {isLoadingLogins ? "Loading login records..." : "No login records found."}
+                            </td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
         </Tabs>
       </div>
+
 
       <Footer />
     </div>

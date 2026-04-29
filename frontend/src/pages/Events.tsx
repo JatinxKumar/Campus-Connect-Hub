@@ -13,7 +13,9 @@ const Events = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
   const [showOnlyOpen, setShowOnlyOpen] = useState(false);
 
-  const categories = ["All", ...new Set(events.map(event => event.category))];
+  const baseCategories = ["All", "Hackathon", "Workshop", "Competition", "Cultural", "Sports"];
+  const dynamicCategories = [...new Set(events.map(event => event.category))];
+  const categories = [...new Set([...baseCategories, ...dynamicCategories])];
 
   const filteredEvents = events.filter(event => {
     const matchesSearch = event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
