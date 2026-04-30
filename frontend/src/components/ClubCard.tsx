@@ -32,7 +32,7 @@ const ClubCard = ({ club }: ClubCardProps) => {
       if (isJoined) {
         await leaveClub(club.id);
       } else {
-        await joinClub(club.id);
+        navigate(`/clubs/${club.id}/join`);
       }
     } catch (err) {
       console.error("Action failed:", err);

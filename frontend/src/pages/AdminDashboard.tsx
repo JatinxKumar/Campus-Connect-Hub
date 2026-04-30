@@ -12,9 +12,10 @@ import { useAppContext } from "@/context/AppContext";
 import { useToast } from "@/hooks/use-toast";
 import { Club } from "@/data/clubsData";
 import { Event } from "@/data/eventsData";
-import { Users, Calendar, TrendingUp, Plus, Settings, History, User, X, ShieldCheck } from "lucide-react";
+import { Users, Calendar, TrendingUp, Plus, Settings, History, User, X, ShieldCheck, LayoutDashboard } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { apiUrl } from "@/lib/api";
+import PageHeader from "@/components/PageHeader";
 
 const AdminDashboard = () => {
   const { clubs, events, addClub, updateClub, deleteClub, addEvent, updateEvent, deleteEvent } = useAppContext();
@@ -69,7 +70,7 @@ const AdminDashboard = () => {
   });
 
   const totalMembers = clubs.reduce((sum, club) => sum + club.members, 0);
-  const openEvents = events.filter(e => e.registrationOpen).length;
+  const openEvents = events.filter(e => e.registrationOpen && e.status !== "completed").length;
 
   const resetClubForm = () => {
     setClubForm({
@@ -211,7 +212,7 @@ const AdminDashboard = () => {
     }
   };
 
-  const handleCreateEvent = (e: FormEvent) => {
+  const handleCreateEvent = async (e: FormEvent) => {
     e.preventDefault();
 
     const maxParticipants = Number(eventForm.maxParticipants);
@@ -246,6 +247,7 @@ const AdminDashboard = () => {
       maxParticipants,
       image: eventForm.image.trim() || "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=400&h=300&fit=crop",
       status: eventForm.status as "upcoming" | "ongoing" | "completed",
+      registrationOpen: eventForm.status !== "completed",
     };
 
     if (editingEventId !== null) {
@@ -259,39 +261,55 @@ const AdminDashboard = () => {
         return;
       }
 
-      updateEvent({
-        ...existingEvent,
-        ...sanitizedEvent,
-      });
+      try {
+        await updateEvent({
+          ...existingEvent,
+          ...sanitizedEvent,
+        });
 
-      toast({
-        title: "Event Updated!",
-        description: `${sanitizedEvent.title} has been successfully updated.`,
-      });
-      resetEventForm();
+        toast({
+          title: "Event Updated!",
+          description: `${sanitizedEvent.title} has been successfully updated.`,
+        });
+        resetEventForm();
+      } catch (error) {
+        toast({
+          title: "Update failed",
+          description: error instanceof Error ? error.message : "Unable to update event.",
+          variant: "destructive",
+        });
+      }
       return;
     }
 
-    addEvent({
-      id: 0,
-      title: sanitizedEvent.title,
-      description: sanitizedEvent.description,
-      club: sanitizedEvent.club,
-      category: sanitizedEvent.category,
-      date: sanitizedEvent.date,
-      time: sanitizedEvent.time,
-      venue: sanitizedEvent.venue,
-      registrationOpen: true,
-      currentParticipants: 0,
-      maxParticipants: sanitizedEvent.maxParticipants,
-      image: sanitizedEvent.image,
-      status: sanitizedEvent.status,
-    });
-    toast({
-      title: "Event Created!",
-      description: `${sanitizedEvent.title} has been successfully created.`,
-    });
-    resetEventForm();
+    try {
+      await addEvent({
+        id: 0,
+        title: sanitizedEvent.title,
+        description: sanitizedEvent.description,
+        club: sanitizedEvent.club,
+        category: sanitizedEvent.category,
+        date: sanitizedEvent.date,
+        time: sanitizedEvent.time,
+        venue: sanitizedEvent.venue,
+        registrationOpen: true,
+        currentParticipants: 0,
+        maxParticipants: sanitizedEvent.maxParticipants,
+        image: sanitizedEvent.image,
+        status: sanitizedEvent.status,
+      });
+      toast({
+        title: "Event Created!",
+        description: `${sanitizedEvent.title} has been successfully created.`,
+      });
+      resetEventForm();
+    } catch (error) {
+      toast({
+        title: "Create failed",
+        description: error instanceof Error ? error.message : "Unable to create event.",
+        variant: "destructive",
+      });
+    }
   };
 
 
@@ -311,40 +329,42 @@ const AdminDashboard = () => {
     });
   };
 
-  const handleDeleteEvent = (event: Event) => {
+  const handleDeleteEvent = async (event: Event) => {
     const isConfirmed = window.confirm(`Are you sure you want to cancel ${event.title}?`);
     if (!isConfirmed) {
       return;
     }
 
-    deleteEvent(event.id);
+    try {
+      await deleteEvent(event.id);
 
-    if (editingEventId === event.id) {
-      resetEventForm();
+      if (editingEventId === event.id) {
+        resetEventForm();
+      }
+
+      toast({
+        title: "Event Deleted",
+        description: `${event.title} has been removed.`,
+      });
+    } catch (error) {
+      toast({
+        title: "Delete failed",
+        description: error instanceof Error ? error.message : "Unable to delete event.",
+        variant: "destructive",
+      });
     }
-
-    toast({
-      title: "Event Deleted",
-      description: `${event.title} has been removed.`,
-    });
   };
 
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
       
-      {/* Header */}
-      <section className="bg-gradient-to-br from-primary to-primary/80 text-primary-foreground py-12">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-4xl font-bold mb-2">Admin Dashboard</h1>
-              <p className="text-primary-foreground/90">Manage clubs, events, and members</p>
-            </div>
-            <Settings className="w-12 h-12 opacity-50" />
-          </div>
-        </div>
-      </section>
+      <PageHeader 
+        title="Admin Dashboard" 
+        description="Manage clubs, events, and members across the entire Campus Connect platform."
+        icon={LayoutDashboard}
+        variant="indigo"
+      />
 
       <div className="container mx-auto px-4 py-8 flex-1">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
@@ -723,9 +743,22 @@ const AdminDashboard = () => {
                       <div className="flex items-center gap-3">
                         <Select
                           value={event.status || 'upcoming'}
-                          onValueChange={(value) => {
-                            updateEvent({ ...event, status: value as any });
-                            toast({ title: "Status Updated", description: `${event.title} is now ${value}.` });
+                          onValueChange={async (value) => {
+                            try {
+                              const updatedStatus = value as "upcoming" | "ongoing" | "completed";
+                              await updateEvent({ 
+                                ...event, 
+                                status: updatedStatus,
+                                registrationOpen: updatedStatus === "completed" ? false : event.registrationOpen
+                              });
+                              toast({ title: "Status Updated", description: `${event.title} is now ${value}.` });
+                            } catch (error) {
+                              toast({
+                                title: "Update failed",
+                                description: "Failed to update event status.",
+                                variant: "destructive",
+                              });
+                            }
                           }}
                         >
                           <SelectTrigger className="w-[130px] h-9">

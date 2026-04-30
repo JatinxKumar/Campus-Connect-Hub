@@ -12,4 +12,4 @@ const ClubMembershipSchema = new mongoose.Schema({
   joinedAt: { type: Date, default: Date.now },
 });
 
-export default mongoose.model("ClubMembership", ClubMembershipSchema);
+export default mongoose.model("ClubMembership", ClubMembershipSchema, "clubmemberships");

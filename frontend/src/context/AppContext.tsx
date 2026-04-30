@@ -43,9 +43,9 @@ interface AppContextType {
   addClub: (club: Club) => Promise<void>;
   updateClub: (club: Club) => Promise<void>;
   deleteClub: (clubId: number) => Promise<void>;
-  addEvent: (event: Event) => void;
-  updateEvent: (event: Event) => void;
-  deleteEvent: (eventId: number) => void;
+  addEvent: (event: Event) => Promise<void>;
+  updateEvent: (event: Event) => Promise<void>;
+  deleteEvent: (eventId: number) => Promise<void>;
   registerForEvent: (eventId: number) => Promise<void>;
   joinClub: (clubId: number) => Promise<void>;
   leaveClub: (clubId: number) => Promise<void>;
@@ -153,7 +153,19 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       }
     };
 
+    const fetchEvents = async () => {
+      try {
+        const response = await fetch(apiUrl("/api/events"));
+        if (!response.ok) return;
+        const data = await response.json();
+        if (Array.isArray(data.events)) setEvents(data.events);
+      } catch (err) {
+        console.error("Failed to fetch events:", err);
+      }
+    };
+
     void fetchClubs();
+    void fetchEvents();
   }, []);
 
   useEffect(() => {
@@ -267,17 +279,55 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     setClubs((prev) => prev.filter((club) => club.id !== clubId));
   };
 
-  const addEvent = (event: Event) => {
-    setEvents((prev) => [...prev, { ...event, id: getNextId(prev) }]);
+  const addEvent = async (event: Event) => {
+    const response = await fetch(apiUrl("/api/events"), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(event),
+    });
+
+    if (!response.ok) {
+      throw new Error(await parseApiError(response));
+    }
+
+    const payload = (await response.json()) as { event?: Event };
+    if (!payload.event) {
+      throw new Error("Event creation failed");
+    }
+
+    setEvents((prev) => [...prev, payload.event as Event]);
   };
 
-  const updateEvent = (updatedEvent: Event) => {
+  const updateEvent = async (updatedEvent: Event) => {
+    const response = await fetch(apiUrl(`/api/events/${updatedEvent.id}`), {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(updatedEvent),
+    });
+
+    if (!response.ok) {
+      throw new Error(await parseApiError(response));
+    }
+
+    const payload = (await response.json()) as { event?: Event };
+    if (!payload.event) {
+      throw new Error("Event update failed");
+    }
+
     setEvents((prev) =>
-      prev.map((event) => (event.id === updatedEvent.id ? updatedEvent : event))
+      prev.map((event) => (event.id === payload.event!.id ? payload.event! : event))
     );
   };
 
-  const deleteEvent = (eventId: number) => {
+  const deleteEvent = async (eventId: number) => {
+    const response = await fetch(apiUrl(`/api/events/${eventId}`), {
+      method: "DELETE",
+    });
+
+    if (!response.ok) {
+      throw new Error(await parseApiError(response));
+    }
+
     setEvents((prev) => prev.filter((event) => event.id !== eventId));
   };
 
@@ -358,13 +408,17 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       throw new Error("You are already registered for this event.");
     }
 
-    setEvents((prev) =>
-      prev.map((event) =>
-        event.id === eventId && event.currentParticipants < event.maxParticipants
-          ? { ...event, currentParticipants: event.currentParticipants + 1 }
-          : event
-      )
-    );
+    const eventToRegister = events.find(e => e.id === eventId);
+    if (!eventToRegister || eventToRegister.currentParticipants >= eventToRegister.maxParticipants) {
+      throw new Error("Event is full or not found.");
+    }
+
+    const updatedEvent = {
+      ...eventToRegister,
+      currentParticipants: eventToRegister.currentParticipants + 1
+    };
+
+    await updateEvent(updatedEvent);
 
     updateCurrentProfile((profile) => ({
       ...profile,

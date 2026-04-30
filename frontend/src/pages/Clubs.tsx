@@ -5,7 +5,8 @@ import ClubCard from "@/components/ClubCard";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useAppContext } from "@/context/AppContext";
-import { Search, Filter, X } from "lucide-react";
+import PageHeader from "@/components/PageHeader";
+import { Search, Filter, X, Users } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 
 const Clubs = () => {
@@ -37,18 +38,12 @@ const Clubs = () => {
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-background to-secondary/10">
       <Navbar />
       
-      {/* Header */}
-      <section className="bg-gradient-to-br from-primary via-primary/90 to-accent/40 text-primary-foreground py-20 md:py-28 relative overflow-hidden">
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="max-w-3xl">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">Explore Clubs</h1>
-            <p className="text-lg md:text-xl text-primary-foreground/95 leading-relaxed">
-              Find your community among our diverse range of clubs. Whether you're into tech, arts, sports, or social causes, there's a place for you.
-            </p>
-          </div>
-        </div>
-        <div className="absolute top-0 right-0 w-96 h-96 bg-primary-foreground/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
-      </section>
+      <PageHeader 
+        title="Explore Clubs" 
+        description="Find your community among our diverse range of clubs. Whether you're into tech, arts, sports, or social causes, there's a place for you."
+        icon={Users}
+        variant="sky"
+      />
 
       {/* Filters */}
       <section className="sticky top-16 md:top-20 z-40 py-6 md:py-8 bg-background/95 backdrop-blur-lg border-b border-border/40 shadow-sm">

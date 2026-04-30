@@ -1,151 +1,115 @@
-# Campus Connect Hub
+# 🚀 Campus Connect Hub
 
-Campus Connect Hub is a college community platform built with React, Vite, TypeScript, Express, and MongoDB-ready backend logic. It helps students discover clubs, register for events, manage their profile activity, and interact with a cleaner campus dashboard experience.
+Campus Connect Hub is a premium, full-stack student engagement platform designed to bridge the gap between students, clubs, and campus events. Built with a modern tech stack (MERN), it offers a seamless, real-time experience for discovering communities and tracking campus participation.
 
-## Highlights
+---
 
-- Root landing page now opens directly on `/` instead of `/home`
-- Google Sign-In flow integrated on the login page
-- Logged-in navbar with user menu, notifications, category explorer, and logout confirmation
-- Dashboard/Profile page with:
-  - joined clubs
-  - registered event tickets
-  - attendance score
-  - editable bio, interests, GitHub, LinkedIn, and portfolio links
-  - badges and downloadable certificate section
-- Interest-based club recommendations shown on the home page
-- Club join and event registration flows tied to the signed-in user
-- Admin route protected by login only
-- Backend fallback support using `backend-db.json` when MongoDB is unavailable
+## ✨ Key Highlights
 
-## Tech Stack
+- **🎯 Personalized Experience**: Root-first landing page with interest-based club recommendations.
+- **🛡️ Secure Access**: Integrated Google Sign-In and standard credential-based authentication.
+- **💎 Premium UI/UX**: Sophisticated design system featuring:
+  - Animated mesh gradients and glassmorphism.
+  - Smooth micro-animations using Framer Motion.
+  - Custom `PageHeader` component for a unified, modern aesthetic.
+- **⚡ Real-time Sync**: Full database persistence with MongoDB Atlas for clubs, events, and user registrations.
+- **📊 Admin Control Center**: Comprehensive dashboard for admins to manage campus activities with real-time CRUD operations.
+- **👤 Student Command Center**: Personalized dashboard to track joined clubs, event tickets, attendance scores, and earn badges.
+
+---
+
+## 🛠️ Tech Stack
 
 ### Frontend
-
-- React 18
-- TypeScript
-- Vite
-- Tailwind CSS
-- Shadcn UI
-- Radix UI
-- React Router DOM
-- Framer Motion
+- **Framework**: React 18 with Vite
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS
+- **Components**: Shadcn UI & Radix UI
+- **Animations**: Framer Motion
+- **Icons**: Lucide React
 
 ### Backend
+- **Runtime**: Node.js
+- **Framework**: Express.js
+- **Database**: MongoDB Atlas (Primary) & Mongoose ODM
+- **Persistence**: RESTful API architecture
 
-- Node.js
-- Express 5
-- MongoDB with Mongoose
-- dotenv
+---
 
-## Main Features
+## 🚀 Main Features
 
-### Authentication
+### 🔐 Authentication & Identity
+- Multiple login methods (Google & Credentials).
+- Persistent sessions with local storage (transitioning to secure HttpOnly cookies).
+- Role-based access control (Admin vs. Student).
 
-- Credential login
-- Google login
-- Local auth persistence
-- User-aware redirects after login
+### 🏛️ Club & Event Management
+- **Discovery**: Advanced search and category-based filtering for clubs and events.
+- **Participation**: One-click club joining and event registration.
+- **Admin Tools**: Full CRUD (Create, Read, Update, Delete) for events with auto-sync to the database.
+- **Status Tracking**: Intelligent event status management (Upcoming, Ongoing, Completed).
 
-### Student Dashboard
+### 📈 Gamification & Rewards
+- **Badge System**: Unlock achievements based on campus activity.
+- **Attendance Tracking**: Real-time attendance scoring.
+- **Certificates**: Generate and download participation certificates for completed events.
 
-- Personal profile dashboard at `/dashboard`
-- Activity overview based on actual joins and registrations
-- Ticket view for registered events
-- Attendance tracking
-- Badge system
-- Certificate download generation
+---
 
-### Clubs and Events
+## 🗺️ Project Structure
 
-- Browse clubs by category
-- Search and filter club listings
-- Join clubs as a signed-in user
-- Register for events
-- Interest-based recommendation flow
+- `/` — Dynamic Landing Page
+- `/clubs` — Interactive Club Explorer
+- `/events` — Campus Events Calendar
+- `/dashboard` — Personal Student Activity Hub
+- `/admin` — Protected Administrator Dashboard
+- `/login` & `/create-account` — Onboarding Flow
 
-### Navigation and UX
+---
 
-- Root-first landing page on `/`
-- `/home` automatically redirects to `/`
-- Logged-in user chip in navbar
-- Bell notifications UI
-- Explore dropdown for quick club category access
-- Logout confirmation dialog
-
-## Routes
-
-- `/` - main landing page
-- `/home` - redirects to `/`
-- `/clubs` - club listing and filters
-- `/clubs/:id/join` - join a club
-- `/events` - event listing
-- `/events/:id/register` - register for an event
-- `/login` - login page
-- `/create-account` - account creation
-- `/dashboard` - student activity dashboard
-- `/profile` - profile dashboard alias
-- `/admin` - protected admin area
-
-## Environment Setup
+## ⚙️ Environment Setup
 
 Create a `.env` file in the project root:
 
 ```env
-MONGO_URI=mongodb://127.0.0.1:27017/campus-connect
+MONGO_URI=your-mongodb-atlas-uri
 PORT=3000
 VITE_API_BASE_URL=http://localhost:3000
 VITE_GOOGLE_CLIENT_ID=your-google-client-id
-VITE_SUPABASE_URL=your-supabase-url
-VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
 ```
 
-## Installation
+---
 
-```bash
-npm install
-```
+## 🛠️ Installation & Usage
 
-## Run Locally
+1. **Install Dependencies**:
+   ```bash
+   # Root directory
+   npm install
+   ```
 
-Terminal 1:
+2. **Run Backend**:
+   ```bash
+   cd backend
+   npm run dev
+   ```
 
-```bash
-npm run server
-```
+3. **Run Frontend**:
+   ```bash
+   cd frontend
+   npm run dev
+   ```
 
-Terminal 2:
+---
 
-```bash
-npm run dev
-```
+## 🚀 Roadmap & Future Improvements
 
-Open:
+- [ ] **Secure Session Management**: Implement JWT tokens and HttpOnly cookies.
+- [ ] **Real-time Notifications**: Integrate Socket.io for instant event updates.
+- [ ] **PDF Certificates**: High-quality PDF generation for event participation.
+- [ ] **Enhanced Analytics**: Advanced data visualization for admin reporting.
+- [ ] **Collaborative Tools**: Live chat and forum sections for clubs.
 
-```text
-http://localhost:8080/
-```
+---
 
-## Notes
-
-- If MongoDB is not running, the backend can still work using `backend-db.json` for fallback persistence.
-- `.env` is intentionally excluded from GitHub pushes.
-- If you previously saw `/home` on localhost, that was caused by a stale build/dev process. The current routing is root-first.
-
-## Current Project Direction
-
-This project has moved beyond a simple club listing site and now behaves more like a student engagement platform:
-
-- identity-aware navigation
-- dashboard-driven profile experience
-- event participation tracking
-- gamified engagement
-- recommendation-oriented home feed
-
-## Future Improvements
-
-- real notification persistence
-- downloadable PDF certificates
-- actual attendance verification workflow
-- backend APIs for user profile and dashboard activity
-- better analytics inside admin dashboard
+*Developed with ❤️ for a better campus experience.*

@@ -5,7 +5,8 @@ import EventCard from "@/components/EventCard";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useAppContext } from "@/context/AppContext";
-import { Search, Filter, X } from "lucide-react";
+import PageHeader from "@/components/PageHeader";
+import { Search, Filter, X, Calendar } from "lucide-react";
 
 const Events = () => {
   const { events } = useAppContext();
@@ -30,18 +31,12 @@ const Events = () => {
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-background to-secondary/10">
       <Navbar />
       
-      {/* Header */}
-      <section className="bg-gradient-to-br from-accent via-accent/90 to-primary/40 text-accent-foreground py-20 md:py-28 relative overflow-hidden">
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="max-w-3xl">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">Events Calendar</h1>
-            <p className="text-lg md:text-xl text-accent-foreground/95 leading-relaxed">
-              Stay updated with the latest events, workshops, competitions, and performances happening across campus.
-            </p>
-          </div>
-        </div>
-        <div className="absolute top-0 left-0 w-96 h-96 bg-accent-foreground/10 rounded-full blur-3xl -translate-y-1/2 -translate-x-1/2 pointer-events-none"></div>
-      </section>
+      <PageHeader 
+        title="Events Calendar" 
+        description="Stay updated with the latest events, workshops, competitions, and performances happening across campus."
+        icon={Calendar}
+        variant="violet"
+      />
 
       {/* Filters */}
       <section className="sticky top-16 md:top-20 z-40 py-6 md:py-8 bg-background/95 backdrop-blur-lg border-b border-border/40 shadow-sm">
