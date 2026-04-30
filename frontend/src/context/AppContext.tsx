@@ -144,7 +144,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const fetchClubs = async () => {
       try {
-        const response = await fetch(apiUrl("/api/clubs"));
+        const response = await fetch(apiUrl("/api/clubs"), { credentials: "include" });
         if (!response.ok) return;
         const data = await response.json();
         if (Array.isArray(data.clubs)) setClubs(data.clubs);
@@ -155,7 +155,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 
     const fetchEvents = async () => {
       try {
-        const response = await fetch(apiUrl("/api/events"));
+        const response = await fetch(apiUrl("/api/events"), { credentials: "include" });
         if (!response.ok) return;
         const data = await response.json();
         if (Array.isArray(data.events)) setEvents(data.events);
@@ -175,7 +175,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 
     const fetchProfile = async () => {
       try {
-        const response = await fetch(apiUrl(`/auth/profile/${currentEmail}`));
+        const response = await fetch(apiUrl(`/auth/profile/${currentEmail}`), { credentials: "include" });
         if (response.ok) {
           const data = await response.json();
           if (data.profile) {
@@ -220,6 +220,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       await fetch(apiUrl(`/auth/profile/${currentEmail}`), {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify(updatedProfile),
       });
     } catch (error) {
@@ -231,6 +232,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     const response = await fetch(apiUrl("/api/clubs"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify(club),
     });
 
@@ -250,6 +252,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     const response = await fetch(apiUrl(`/api/clubs/${updatedClub.id}`), {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify(updatedClub),
     });
 
@@ -270,6 +273,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const deleteClub = async (clubId: number) => {
     const response = await fetch(apiUrl(`/api/clubs/${clubId}`), {
       method: "DELETE",
+      credentials: "include",
     });
 
     if (!response.ok) {
@@ -283,6 +287,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     const response = await fetch(apiUrl("/api/events"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify(event),
     });
 
@@ -302,6 +307,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     const response = await fetch(apiUrl(`/api/events/${updatedEvent.id}`), {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify(updatedEvent),
     });
 
@@ -322,6 +328,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const deleteEvent = async (eventId: number) => {
     const response = await fetch(apiUrl(`/api/events/${eventId}`), {
       method: "DELETE",
+      credentials: "include",
     });
 
     if (!response.ok) {
@@ -337,6 +344,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       const response = await fetch(apiUrl("/auth/join-club"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ email: currentEmail, clubId }),
       });
       if (response.ok) {
@@ -362,6 +370,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       const response = await fetch(apiUrl("/auth/leave-club"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ email: currentEmail, clubId }),
       });
       if (response.ok) {
@@ -386,6 +395,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       const response = await fetch(apiUrl(`/api/clubs/${clubId}/apply`), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ ...formData, clubName: clubs.find(c => c.id === clubId)?.name }),
       });
 

@@ -27,7 +27,18 @@ export const createEvent = async (req, res) => {
     });
     
     const savedEvent = await newEvent.save();
-    res.status(201).json({ event: removeMongooseMetadata(savedEvent) });
+    const eventData = removeMongooseMetadata(savedEvent);
+    
+    // Emit real-time notification
+    const io = req.app.get("io");
+    if (io) {
+      io.emit("eventCreated", { 
+        message: `New Event: ${eventData.title}`,
+        event: eventData 
+      });
+    }
+
+    res.status(201).json({ event: eventData });
   } catch (err) {
     res.status(500).json({ message: "Failed to create event", error: err.message });
   }
@@ -44,7 +55,18 @@ export const updateEvent = async (req, res) => {
     if (!updatedEvent) {
       return res.status(404).json({ message: "Event not found" });
     }
-    res.json({ event: removeMongooseMetadata(updatedEvent) });
+    const eventData = removeMongooseMetadata(updatedEvent);
+
+    // Emit real-time notification
+    const io = req.app.get("io");
+    if (io) {
+      io.emit("eventUpdated", { 
+        message: `Event Updated: ${eventData.title}`,
+        event: eventData 
+      });
+    }
+
+    res.json({ event: eventData });
   } catch (err) {
     res.status(500).json({ message: "Failed to update event", error: err.message });
   }
@@ -57,8 +79,19 @@ export const deleteEvent = async (req, res) => {
     if (!deletedEvent) {
       return res.status(404).json({ message: "Event not found" });
     }
+
+    // Emit real-time notification
+    const io = req.app.get("io");
+    if (io) {
+      io.emit("eventDeleted", { 
+        message: `Event Deleted: ${deletedEvent.title}`,
+        id: parseInt(id) 
+      });
+    }
+
     res.json({ message: "Event deleted successfully" });
   } catch (err) {
     res.status(500).json({ message: "Failed to delete event", error: err.message });
   }
 };
+

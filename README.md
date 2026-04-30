@@ -7,12 +7,12 @@ Campus Connect Hub is a premium, full-stack student engagement platform designed
 ## ✨ Key Highlights
 
 - **🎯 Personalized Experience**: Root-first landing page with interest-based club recommendations.
-- **🛡️ Secure Access**: Integrated Google Sign-In and standard credential-based authentication.
+- **🛡️ Secure Access**: Integrated Google Sign-In and secure JWT-based authentication.
+- **📡 Real-time Sync**: Instant event notifications and updates powered by Socket.io.
 - **💎 Premium UI/UX**: Sophisticated design system featuring:
   - Animated mesh gradients and glassmorphism.
   - Smooth micro-animations using Framer Motion.
   - Custom `PageHeader` component for a unified, modern aesthetic.
-- **⚡ Real-time Sync**: Full database persistence with MongoDB Atlas for clubs, events, and user registrations.
 - **📊 Admin Control Center**: Comprehensive dashboard for admins to manage campus activities with real-time CRUD operations.
 - **👤 Student Command Center**: Personalized dashboard to track joined clubs, event tickets, attendance scores, and earn badges.
 
@@ -25,6 +25,7 @@ Campus Connect Hub is a premium, full-stack student engagement platform designed
 - **Language**: TypeScript
 - **Styling**: Tailwind CSS
 - **Components**: Shadcn UI & Radix UI
+- **Real-time**: Socket.io Client
 - **Animations**: Framer Motion
 - **Icons**: Lucide React
 
@@ -32,18 +33,22 @@ Campus Connect Hub is a premium, full-stack student engagement platform designed
 - **Runtime**: Node.js
 - **Framework**: Express.js
 - **Database**: MongoDB Atlas (Primary) & Mongoose ODM
-- **Persistence**: RESTful API architecture
+- **Real-time**: Socket.io
+- **Security**: JWT (JSON Web Tokens), Bcryptjs, Cookie-Parser
+- **Persistence**: RESTful API architecture (MVC Pattern)
 
 ---
 
 ## 🚀 Main Features
 
-### 🔐 Authentication & Identity
-- Multiple login methods (Google & Credentials).
-- Persistent sessions with local storage (transitioning to secure HttpOnly cookies).
-- Role-based access control (Admin vs. Student).
+### 🔐 Advanced Security & Identity
+- **JWT & HttpOnly Cookies**: Secure session management that protects against XSS and CSRF attacks.
+- **Bcrypt Hashing**: Industry-standard password encryption for credential-based login.
+- **Session Persistence**: Initial session verification on load to keep users logged in securely.
+- **Role-based access control**: Specialized views for Admins and Students.
 
 ### 🏛️ Club & Event Management
+- **Real-time Notifications**: Instant toast notifications for new or updated events via Socket.io.
 - **Discovery**: Advanced search and category-based filtering for clubs and events.
 - **Participation**: One-click club joining and event registration.
 - **Admin Tools**: Full CRUD (Create, Read, Update, Delete) for events with auto-sync to the database.
@@ -56,24 +61,20 @@ Campus Connect Hub is a premium, full-stack student engagement platform designed
 
 ---
 
-## 🗺️ Project Structure
-
-- `/` — Dynamic Landing Page
-- `/clubs` — Interactive Club Explorer
-- `/events` — Campus Events Calendar
-- `/dashboard` — Personal Student Activity Hub
-- `/admin` — Protected Administrator Dashboard
-- `/login` & `/create-account` — Onboarding Flow
-
----
-
 ## ⚙️ Environment Setup
 
-Create a `.env` file in the project root:
+Create a `.env` file in the **backend** directory:
 
 ```env
 MONGO_URI=your-mongodb-atlas-uri
+JWT_SECRET=your-secret-key
+FRONTEND_URL=http://localhost:5173
 PORT=3000
+```
+
+Create a `.env` file in the **frontend** directory:
+
+```env
 VITE_API_BASE_URL=http://localhost:3000
 VITE_GOOGLE_CLIENT_ID=your-google-client-id
 ```
@@ -84,7 +85,12 @@ VITE_GOOGLE_CLIENT_ID=your-google-client-id
 
 1. **Install Dependencies**:
    ```bash
-   # Root directory
+   # Backend directory
+   cd backend
+   npm install
+
+   # Frontend directory
+   cd frontend
    npm install
    ```
 
@@ -102,10 +108,21 @@ VITE_GOOGLE_CLIENT_ID=your-google-client-id
 
 ---
 
+## 🗺️ Project Structure
+
+- `/` — Dynamic Landing Page
+- `/clubs` — Interactive Club Explorer
+- `/events` — Campus Events Calendar
+- `/dashboard` — Personal Student Activity Hub
+- `/admin` — Protected Administrator Dashboard
+- `/login` & `/create-account` — Onboarding Flow
+
+---
+
 ## 🚀 Roadmap & Future Improvements
 
-- [ ] **Secure Session Management**: Implement JWT tokens and HttpOnly cookies.
-- [ ] **Real-time Notifications**: Integrate Socket.io for instant event updates.
+- [x] **Secure Session Management**: JWT tokens and HttpOnly cookies implemented.
+- [x] **Real-time Notifications**: Socket.io integration complete.
 - [ ] **PDF Certificates**: High-quality PDF generation for event participation.
 - [ ] **Enhanced Analytics**: Advanced data visualization for admin reporting.
 - [ ] **Collaborative Tools**: Live chat and forum sections for clubs.

@@ -17,7 +17,8 @@
 // };
 
 
-const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL as string | undefined) || "";
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL as string | undefined) || "http://localhost:3000";
+
 
 export const getApiBaseUrl = () => API_BASE_URL;
 
